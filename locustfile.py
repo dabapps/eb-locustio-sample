@@ -1,37 +1,101 @@
-# Copyright 2015-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file
-# except in compliance with the License. A copy of the License is located at
-#
-#     http://aws.amazon.com/apache2.0/
-#
-# or in the "license" file accompanying this file. This file is distributed on an "AS IS"
-# BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations under the License.
-
 import os
-import string
-import random
 from locust import HttpLocust, TaskSet, task
 
-class MyTaskSet(TaskSet):
-    @task(1000)
-    def index(self):
-        response = self.client.get("/")
 
-    # This task will 15 times for every 1000 runs of the above task
-    # @task(15)
-    # def about(self):
-    #     self.client.get("/blog")
+class CreateSurvey(TaskSet):
 
-    # This task will run once for every 1000 runs of the above task
-    # @task(1)
-    # def about(self):
-    #     id = id_generator()
-    #     self.client.post("/signup", {"email": "example@example.com", "name": "Test"})
+    def on_start(self):
+        print('CreateSurvey  - on_start')
+        self.locust.summary()
+        # create survey here?
+        self.client.get("/")
+
+    @task(1)
+    def abandon_it(self):
+        print('CreateSurvey - abandon_it')
+        self.locust.summary()
+        self.client.get("/")
+        self.interrupt()
+
+    @task(1)
+    def send_it(self):
+        print('CreateSurvey - send_it')
+        self.locust.num_open_surveys += 1
+        self.locust.summary()
+        self.client.get("/")
+        self.interrupt()
+
+    @task(1)
+    def send_it_and_something(self):
+        print('CreateSurvey - send_it_and_something')
+        self.locust.num_open_surveys += 1
+        self.locust.summary()
+        self.client.get("/")
+        self.interrupt()
+
+
+class ViewSurveyReport(TaskSet):
+
+    def on_start(self):
+        if self.locust.num_open_surveys <= 0:
+            print("ViewSurveyReport - No point, no surveys!")
+            self.interrupt()
+
+    @task(10)
+    def view_report_this_way(self):
+        print('ViewSurveyReport - view_report_this_way')
+        self.locust.summary()
+        self.client.get("/")
+
+    @task(10)
+    def view_report_that_way(self):
+        print('ViewSurveyReport - view_report_that_way')
+        self.locust.summary()
+        self.client.get("/")
+
+    @task(1)
+    def stop(self):
+        print('ViewSurveyReport - stop')
+        self.locust.summary()
+        self.interrupt()
+
+
+class RespondToSurvey(TaskSet):
+    def on_start(self):
+        if self.locust.num_open_surveys <= 0:
+            print("RespondToSurvey - No point, no surveys!")
+            self.interrupt()
+        print('RespondToSurvey  - on_start')
+        # Work out who to respond as.
+        self.locust.summary()
+
+    @task(1)
+    def something(self):
+        print('RespondToSurvey  - something')
+        self.locust.summary()
+        self.interrupt()
+
+
+class WeThriveTaskSet(TaskSet):
+    tasks = {
+        CreateSurvey: 1,
+        ViewSurveyReport: 5,
+        RespondToSurvey: 10
+    }
+
+    def on_start(self):
+        print('WeThriveTaskSet  - on_start')
+        self.locust.summary()
+        # sign up and sign in
+
 
 class MyLocust(HttpLocust):
     host = os.getenv('TARGET_URL', "http://localhost")
-    task_set = MyTaskSet
-    min_wait = 45
-    max_wait = 50
+    task_set = WeThriveTaskSet
+    min_wait = 250
+    max_wait = 500
+    num_open_surveys = 0
+
+    def summary(self):
+        # print(self.num_open_surveys)
+        pass
