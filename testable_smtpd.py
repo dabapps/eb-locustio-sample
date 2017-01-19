@@ -10,11 +10,11 @@ logger = logging.getLogger(__file__)
 
 SMTPD_DIR = os.getenv("SMTPD_DIR", "/tmp/smtpd/")
 SMTPD_PORT = os.getenv('SMTPD_PORT', 2525)
-SMTPD_HOSTNAME = os.getenv('SMTPD_HOSTNAME', None)
+SMTPD_HOST = os.getenv('SMTPD_HOST', None)
 
-if SMTPD_HOSTNAME is None:
+if SMTPD_HOST is None:
     logger.info("Asking AWS meta-data server for our public name...")
-    SMTPD_HOSTNAME = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
+    SMTPD_HOST = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
 
 
 def get_last_message_for(email_address):

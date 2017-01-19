@@ -1,6 +1,6 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from testable_smtpd import SMTPD_PORT, SMTPD_HOSTNAME, get_last_message_for
+from testable_smtpd import SMTPD_PORT, SMTPD_HOST, get_last_message_for
 from bs4 import BeautifulSoup
 import uuid
 import random
@@ -28,7 +28,7 @@ def generate_random_email_and_name():
 @web.app.route("/smtp")
 def www_smtp():
     return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT={}</pre>".format(
-        SMTPD_HOSTNAME,
+        SMTPD_HOST,
         "",
         "",
         SMTPD_PORT
@@ -70,7 +70,7 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        request_1 = requests.get("http://{}:8000/get_last_message_for/{}".format(SMTPD_HOSTNAME, email))
+        request_1 = requests.get("http://{}:8000/get_last_message_for/{}".format(SMTPD_HOST, email))
         message = str(request_1.content)
         if message is not None:
             print('GOT MESSAGE!')
@@ -111,9 +111,10 @@ class CreateSurvey(TaskSet):
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
             "username": email,
             "password": password,
+            "next": "/surveys/",
         }
         print(data)
-        response_2 = self.client.post(response_1.url, data)
+        response_2 = self.client.post('accounts/login/', data)
         print(response_2)
 
     @task
