@@ -184,8 +184,10 @@ class CreateSurvey(TaskSet):
 
     def _preview_survey(self, preview_survey_url):
         response_1 = self.client.get(preview_survey_url)
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
         data = {
-            # no csrf on this form
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
         }
         print(data)
         response_2 = self.client.post(response_1.url, data)  # noqa
