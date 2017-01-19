@@ -97,9 +97,9 @@ class CreateSurvey(TaskSet):
         }
         print(response_1.url)
         print(data)
-        response_2 = self.client.post(response_1.url, data)
+        response_2 = self.client.post(response_1.url, data)  # noqa
         # response_2
-        print(response_2.content)
+        # print(response_2.content)
 
         self.schedule_task(self._login, args=[email, password])
 
@@ -111,11 +111,31 @@ class CreateSurvey(TaskSet):
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
             "username": email,
             "password": password,
-            "next": "/surveys/",
+            "next": "/people/",
         }
         print(data)
-        response_2 = self.client.post('accounts/login/', data)
-        print(response_2)
+        response_2 = self.client.post('accounts/login/', data)  # noqa
+        # print(response_2)
+
+        self.schedule_task(self._create_team)
+
+    def _create_team(self):
+        response_1 = self.client.get("people/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        num_team_members_to_create = 10
+        team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, num_team_members_to_create)])
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "email_addresses": team_members_email_addresses_csv,
+            "verb": "Add",
+        }
+        print(data)
+        response_2 = self.client.post('people/', data)
+        print(response_2.content)
+
+    def _create_team_member(self, team_member_email):
+        pass
 
     @task
     def stop(self):
