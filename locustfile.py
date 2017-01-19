@@ -1,101 +1,91 @@
 import os
-from locust import HttpLocust, TaskSet, task
+from locust import HttpLocust, TaskSet, task, web
+import requests
+
+
+@web.app.route("/smtp")
+def smtp():
+    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT=2525</pre>".format(
+        requests.get("http://169.254.169.254/latest/meta-data/public-hostname").content,
+        "",
+        "",
+        None
+    )
+
+
+@web.app.route("/env")
+def env():
+    return "<pre>{}</pre>".format("\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()]))
+
+
+class RespondSurvey(TaskSet):
+
+    def on_start(self):
+        print('RespondSurvey - on_start')
+        # sign up or in
+
+    @task
+    def respond_quickly(self):
+        print('respond_quickly')
+        self.interrupt()
+
+    @task
+    def respond_slowly(self):
+        print('respond_slowly')
+        self.interrupt()
 
 
 class CreateSurvey(TaskSet):
 
     def on_start(self):
-        print('CreateSurvey  - on_start')
-        self.locust.summary()
-        # create survey here?
-        self.client.get("/")
+        # sign up or in
+        pass
 
-    @task(1)
-    def abandon_it(self):
-        print('CreateSurvey - abandon_it')
-        self.locust.summary()
-        self.client.get("/")
-        self.interrupt()
+    # @task(5)
+    # def abandon_it(self):
+    #     print('CreateSurvey - abandon_it')
+    #     self.client.get("/")
 
     @task(1)
     def send_it(self):
         print('CreateSurvey - send_it')
-        self.locust.num_open_surveys += 1
-        self.locust.summary()
-        self.client.get("/")
-        self.interrupt()
-
-    @task(1)
-    def send_it_and_something(self):
-        print('CreateSurvey - send_it_and_something')
-        self.locust.num_open_surveys += 1
-        self.locust.summary()
-        self.client.get("/")
-        self.interrupt()
-
-
-class ViewSurveyReport(TaskSet):
-
-    def on_start(self):
-        if self.locust.num_open_surveys <= 0:
-            print("ViewSurveyReport - No point, no surveys!")
-            self.interrupt()
-
-    @task(10)
-    def view_report_this_way(self):
-        print('ViewSurveyReport - view_report_this_way')
-        self.locust.summary()
         self.client.get("/")
 
-    @task(10)
-    def view_report_that_way(self):
-        print('ViewSurveyReport - view_report_that_way')
-        self.locust.summary()
-        self.client.get("/")
+        # This is no good because it's sequential!!
+        self.schedule_task(RespondSurvey(self).run)
+        self.schedule_task(RespondSurvey(self).run)
+        self.schedule_task(RespondSurvey(self).run)
+        self.schedule_task(RespondSurvey(self).run)
+        self.schedule_task(RespondSurvey(self).run)
 
-    @task(1)
-    def stop(self):
-        print('ViewSurveyReport - stop')
-        self.locust.summary()
-        self.interrupt()
+        # self.schedule_task(self.view_report, [21])
+        # self.schedule_task(self.view_report, [22])
+        # self.schedule_task(self.view_report, [23])
+        # self.schedule_task(self.view_report, [24])
+        # self.schedule_task(self.view_report, [25])
 
+    # @task(1)
+    # def send_it_and_something(self):
+    #     print('CreateSurvey - send_it_and_something')
+    #     self.client.get("/")
 
-class RespondToSurvey(TaskSet):
-    def on_start(self):
-        if self.locust.num_open_surveys <= 0:
-            print("RespondToSurvey - No point, no surveys!")
-            self.interrupt()
-        print('RespondToSurvey  - on_start')
-        # Work out who to respond as.
-        self.locust.summary()
+    def respond_to_survey(self, info):
+        print('respond_to_survey {}'.format(info))
 
-    @task(1)
-    def something(self):
-        print('RespondToSurvey  - something')
-        self.locust.summary()
-        self.interrupt()
+    def view_report(self, info):
+        print('view_report {}'.format(info))
 
 
-class WeThriveTaskSet(TaskSet):
+class WeThrive(TaskSet):
     tasks = {
         CreateSurvey: 1,
-        ViewSurveyReport: 5,
-        RespondToSurvey: 10
+        RespondSurvey: 10,
+        # ViewReports: 1,
     }
-
-    def on_start(self):
-        print('WeThriveTaskSet  - on_start')
-        self.locust.summary()
-        # sign up and sign in
 
 
 class MyLocust(HttpLocust):
     host = os.getenv('TARGET_URL', "http://localhost")
-    task_set = WeThriveTaskSet
-    min_wait = 250
-    max_wait = 500
-    num_open_surveys = 0
-
-    def summary(self):
-        # print(self.num_open_surveys)
-        pass
+    task_set = WeThrive
+    min_wait = 1000
+    max_wait = 2000
