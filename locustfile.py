@@ -1,6 +1,27 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from testable_smtpd import SMTPD_PORT, SMTPD_HOSTNAME
+from testable_smtpd import SMTPD_PORT, SMTPD_HOSTNAME, get_last_message_for
+from bs4 import BeautifulSoup
+import uuid
+import random
+from slugify import slugify
+import re
+
+FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba")
+SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
+
+
+def generate_random_email_and_name():
+    first_name = random.choice(FIRST_NAMES)
+    second_name = random.choice(SECOND_NAMES)
+    return (
+        "{}.{}+{}@example.com".format(
+            slugify(first_name),
+            slugify(second_name),
+            str(uuid.uuid4())
+        ),
+        "{} {}".format(first_name, second_name)
+    )
 
 
 @web.app.route("/smtp")
@@ -18,68 +39,66 @@ def env():
     return "<pre>{}</pre>".format("\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()]))
 
 
-class RespondSurvey(TaskSet):
-
-    def on_start(self):
-        print('RespondSurvey - on_start')
-        # sign up or in
-
-    @task
-    def respond_quickly(self):
-        print('respond_quickly')
-        self.interrupt()
-
-    @task
-    def respond_slowly(self):
-        print('respond_slowly')
-        self.interrupt()
-
-
 class CreateSurvey(TaskSet):
 
     def on_start(self):
-        # sign up or in
-        pass
+        print("CreateSurvey: on_start")
+        # Get CSRF token
+        response_1 = self.client.get("accounts/register/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        (random_email, random_name) = generate_random_email_and_name()
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "email": random_email,
+            "first_name": random_name,
+        }
+        print(data)
+        response_2 = self.client.post("accounts/register/", data)
+        response_2
+        # print(response_2.content)
 
-    # @task(5)
-    # def abandon_it(self):
-    #     print('CreateSurvey - abandon_it')
-    #     self.client.get("/")
+        self.schedule_task(self._wait_for_signup_email, args=[random_name, random_email])
 
-    @task(1)
-    def send_it(self):
-        print('CreateSurvey - send_it')
-        self.client.get("/")
+    def _wait_for_signup_email(self, name, email):
+        print('wait_for_email ({}  {})'.format(name, email))
+        message = get_last_message_for(email)
+        if message is not None:
+            print('GOT MESSAGE!')
+            matches = re.search("(account/activate/[^\/]+/)", message, re.MULTILINE)
+            if matches:
+                finish_signup_url = matches.group(1)
+                self.schedule_task(self._finish_signup, args=[name, email, finish_signup_url])
+            else:
+                raise Exception("Unable to extract activation link!")
+        else:
+            self.schedule_task(self._wait_for_signup_email, args=[name, email])
 
-        # This is no good because it's sequential!!
-        self.schedule_task(RespondSurvey(self).run)
-        self.schedule_task(RespondSurvey(self).run)
-        self.schedule_task(RespondSurvey(self).run)
-        self.schedule_task(RespondSurvey(self).run)
-        self.schedule_task(RespondSurvey(self).run)
+    def _finish_signup(self, name, email, finish_signup_url):
+        print('_finish_signup {}'.format(finish_signup_url))
+        response_1 = self.client.get(finish_signup_url, name="/account/activate/[id]/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+        }
+        print(response_1.url)
+        print(data)
+        response_2 = self.client.post(response_1.url, data)
+        response_2
+        # print(response_2.content)
 
-        # self.schedule_task(self.view_report, [21])
-        # self.schedule_task(self.view_report, [22])
-        # self.schedule_task(self.view_report, [23])
-        # self.schedule_task(self.view_report, [24])
-        # self.schedule_task(self.view_report, [25])
-
-    # @task(1)
-    # def send_it_and_something(self):
-    #     print('CreateSurvey - send_it_and_something')
-    #     self.client.get("/")
-
-    def respond_to_survey(self, info):
-        print('respond_to_survey {}'.format(info))
-
-    def view_report(self, info):
-        print('view_report {}'.format(info))
+    @task
+    def stop(self):
+        print('stop')
+        self.client.get('accounts/logout/')
+        self.interrupt()
 
 
 class WeThrive(TaskSet):
     tasks = {
         CreateSurvey: 1,
-        RespondSurvey: 10,
+        # RespondSurvey: 10,
         # ViewReports: 1,
     }
 
