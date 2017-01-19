@@ -6,6 +6,7 @@ import uuid
 import random
 from slugify import slugify
 import re
+import requests
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
@@ -25,7 +26,7 @@ def generate_random_email_and_name():
 
 
 @web.app.route("/smtp")
-def smtp():
+def www_smtp():
     return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT={}</pre>".format(
         SMTPD_HOSTNAME,
         "",
@@ -35,8 +36,15 @@ def smtp():
 
 
 @web.app.route("/env")
-def env():
-    return "<pre>{}</pre>".format("\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()]))
+def www_env():
+    return "<pre>{}</pre>".format(
+        "\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()])
+    )
+
+
+@web.app.route("/get_last_message_for/<email_address>")
+def www_get_last_message_for(email_address):
+    return get_last_message_for(email_address)
 
 
 class CreateSurvey(TaskSet):
@@ -62,9 +70,11 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        message = get_last_message_for(email)
+        request_1 = requests.get("http://{}:8000/get_last_message_for/{}".format(SMTPD_HOSTNAME, email))
+        message = str(request_1.content)
         if message is not None:
             print('GOT MESSAGE!')
+            # print(message)
             matches = re.search("(account/activate/[^\/]+/)", message, re.MULTILINE)
             if matches:
                 finish_signup_url = matches.group(1)
@@ -79,14 +89,32 @@ class CreateSurvey(TaskSet):
         response_1 = self.client.get(finish_signup_url, name="/account/activate/[id]/")
         soup = BeautifulSoup(response_1.content, 'html.parser')
         csrfmiddlewaretoken = soup.form.input['value']
+        password = "password1!"
         data = {
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "new_password": password,
+            "confirm_password": password,
         }
         print(response_1.url)
         print(data)
         response_2 = self.client.post(response_1.url, data)
-        response_2
-        # print(response_2.content)
+        # response_2
+        print(response_2.content)
+
+        self.schedule_task(self._login, args=[email, password])
+
+    def _login(self, email, password):
+        response_1 = self.client.get("accounts/login/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "username": email,
+            "password": password,
+        }
+        print(data)
+        response_2 = self.client.post(response_1.url, data)
+        print(response_2)
 
     @task
     def stop(self):
