@@ -164,55 +164,18 @@ class CreateSurvey(TaskSet):
         soup = BeautifulSoup(response_1.content, 'html.parser')
         forms = soup.find_all('form')
         # print(forms)
-        # NOTE: It's the 2nd form on this page !?
-        csrfmiddlewaretoken = forms[1].input['value']
-        data = {  # FIXME: hardcoded to wrong persons team!!!
-            "csrfmiddlewaretoken": csrfmiddlewaretoken,
-            "survey_members-TOTAL_FORMS": "10",
-            "survey_members-INITIAL_FORMS": "10",
-            "survey_members-MIN_NUM_FORMS": "0",
-            "survey_members-MAX_NUM_FORMS": "1000",
-            "survey_members-0-member_added": "on",
-            "survey_members-0-member_id": "10999",
-            "survey_members-0-member_email": "boba.fett+afcd9153-aeac-4d09-b903-e1da8a2de408@example.com",
-            "survey_members-0-member_display_name": "Boba Fett",
-            "survey_members-1-member_added": "on",
-            "survey_members-1-member_id": "10998",
-            "survey_members-1-member_email": "boba.skywalker+073151b4-9eea-4675-835d-0996bfc0468b@example.com",
-            "survey_members-1-member_display_name": "Boba Skywalker",
-            "survey_members-2-member_added": "on",
-            "survey_members-2-member_id": "11006",
-            "survey_members-2-member_email": "chewy.skywalker+97a8e8f2-7033-462e-afcc-c1b0e9181ce5@example.com",
-            "survey_members-2-member_display_name": "Chewy Skywalker",
-            "survey_members-3-member_added": "on",
-            "survey_members-3-member_id": "11005",
-            "survey_members-3-member_email": "chewy.solo+777fe7c0-3354-425a-94af-e3d903128bf3@example.com",
-            "survey_members-3-member_display_name": "Chewy Solo",
-            "survey_members-4-member_added": "on",
-            "survey_members-4-member_id": "11003",
-            "survey_members-4-member_email": "chewy.solo+e41d6404-4c32-4b4b-a96b-5beb47d6f30f@example.com",
-            "survey_members-4-member_display_name": "Chewy Solo",
-            "survey_members-5-member_added": "on",
-            "survey_members-5-member_id": "11004",
-            "survey_members-5-member_email": "chewy.solo+e7bf8943-f362-424e-926a-ebf1bade560b@example.com",
-            "survey_members-5-member_display_name": "Chewy Solo",
-            "survey_members-6-member_added": "on",
-            "survey_members-6-member_id": "11001",
-            "survey_members-6-member_email": "han.fett+2600e775-4b12-4718-8017-2d2f2040f8bb@example.com",
-            "survey_members-6-member_display_name": "Han Fett",
-            "survey_members-7-member_added": "on",
-            "survey_members-7-member_id": "11007",
-            "survey_members-7-member_email": "han.hutt+ce92821f-e2df-495e-b2d3-f42e53e61ed1@example.com",
-            "survey_members-7-member_display_name": "Han Hutt",
-            "survey_members-8-member_added": "on",
-            "survey_members-8-member_id": "11000",
-            "survey_members-8-member_email": "leia.solo+b0672206-a76c-4148-bd80-1c73b8990bb6@example.com",
-            "survey_members-8-member_display_name": "Leia Solo",
-            "survey_members-9-member_added": "on",
-            "survey_members-9-member_id": "11002",
-            "survey_members-9-member_email": "luke.skywalker+f3bb4613-498e-4e20-b2eb-0d737f75271c@example.com",
-            "survey_members-9-member_display_name": "Luke Skywalker",
-        }
+        form = forms[1]  # # NOTE: It's the 2nd form on this page !?
+        data = {}
+        for input_tag in form.find_all('input'):
+            try:
+                name = input_tag['name']
+                if '_added' in name:
+                    data[name] = "on"
+                else:
+                    data[name] = input_tag['value']
+            except KeyError:
+                # some inputs dont have a 'name' attr
+                pass
         print(data)
         response_2 = self.client.post(response_1.url, data)  # noqa
         preview_survey_url = response_2.url
