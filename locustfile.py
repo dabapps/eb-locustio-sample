@@ -144,11 +144,11 @@ class CreateSurvey(TaskSet):
         csrfmiddlewaretoken = soup.form.input['value']
         data = {
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
-            "auto_close_date": "26/01/2017",
+            "auto_close_date": "26/01/2017",    # FIXME: hardcoded date
             "name": "Survey Name",
             "company_name": "Company Name",
-            "auto_start_date": "19/01/2017",
-            "start_time": "16:30",
+            "auto_start_date": "19/01/2017",    # FIXME: hardcoded date
+            "start_time": "16:30",              # FIXME: hardcoded time
             "end_date_week": 1,
             "auto_nudge_enabled": "on",
         }
@@ -159,10 +159,14 @@ class CreateSurvey(TaskSet):
         self.schedule_task(self._choose_team_to_send_survey_to_url, args=[choose_team_to_send_survey_to_url, ])
 
     def _choose_team_to_send_survey_to_url(self, choose_team_to_send_survey_to_url):
+        print(choose_team_to_send_survey_to_url)
         response_1 = self.client.get(choose_team_to_send_survey_to_url)
         soup = BeautifulSoup(response_1.content, 'html.parser')
-        csrfmiddlewaretoken = soup.form.input['value']
-        data = {
+        forms = soup.find_all('form')
+        # print(forms)
+        # NOTE: It's the 2nd form on this page !?
+        csrfmiddlewaretoken = forms[1].input['value']
+        data = {  # FIXME: hardcoded to wrong persons team!!!
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
             "survey_members-TOTAL_FORMS": "10",
             "survey_members-INITIAL_FORMS": "10",
@@ -217,10 +221,8 @@ class CreateSurvey(TaskSet):
 
     def _preview_survey(self, preview_survey_url):
         response_1 = self.client.get(preview_survey_url)
-        soup = BeautifulSoup(response_1.content, 'html.parser')
-        csrfmiddlewaretoken = soup.form.input['value']
         data = {
-            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            # no csrf on this form
         }
         print(data)
         response_2 = self.client.post(response_1.url, data)  # noqa
