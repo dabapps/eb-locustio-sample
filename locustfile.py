@@ -1,15 +1,15 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-import requests
+from testable_smtpd import SMTPD_PORT, SMTPD_HOSTNAME
 
 
 @web.app.route("/smtp")
 def smtp():
-    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT=2525</pre>".format(
-        requests.get("http://169.254.169.254/latest/meta-data/public-hostname").content,
+    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT={}</pre>".format(
+        SMTPD_HOSTNAME,
         "",
         "",
-        None
+        SMTPD_PORT
     )
 
 
