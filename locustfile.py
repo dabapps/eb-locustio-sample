@@ -131,11 +131,99 @@ class CreateSurvey(TaskSet):
             "verb": "Add",
         }
         print(data)
-        response_2 = self.client.post('people/', data)
-        print(response_2.content)
+        response_2 = self.client.post('people/', data)  # noqa
+        # print(response_2.content)
 
-    def _create_team_member(self, team_member_email):
-        pass
+        self.schedule_task(self._create_survey)
+
+    def _create_survey(self):
+        self.client.get("surveys/")
+
+        response_1 = self.client.get("surveys/create/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "auto_close_date": "26/01/2017",
+            "name": "Survey Name",
+            "company_name": "Company Name",
+            "auto_start_date": "19/01/2017",
+            "start_time": "16:30",
+            "end_date_week": 1,
+            "auto_nudge_enabled": "on",
+        }
+        print(data)
+        response_2 = self.client.post('surveys/create/', data)  # noqa
+        choose_team_to_send_survey_to_url = response_2.url
+
+        self.schedule_task(self._choose_team_to_send_survey_to_url, args=[choose_team_to_send_survey_to_url, ])
+
+    def _choose_team_to_send_survey_to_url(self, choose_team_to_send_survey_to_url):
+        response_1 = self.client.get(choose_team_to_send_survey_to_url)
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "survey_members-TOTAL_FORMS": "10",
+            "survey_members-INITIAL_FORMS": "10",
+            "survey_members-MIN_NUM_FORMS": "0",
+            "survey_members-MAX_NUM_FORMS": "1000",
+            "survey_members-0-member_added": "on",
+            "survey_members-0-member_id": "10999",
+            "survey_members-0-member_email": "boba.fett+afcd9153-aeac-4d09-b903-e1da8a2de408@example.com",
+            "survey_members-0-member_display_name": "Boba Fett",
+            "survey_members-1-member_added": "on",
+            "survey_members-1-member_id": "10998",
+            "survey_members-1-member_email": "boba.skywalker+073151b4-9eea-4675-835d-0996bfc0468b@example.com",
+            "survey_members-1-member_display_name": "Boba Skywalker",
+            "survey_members-2-member_added": "on",
+            "survey_members-2-member_id": "11006",
+            "survey_members-2-member_email": "chewy.skywalker+97a8e8f2-7033-462e-afcc-c1b0e9181ce5@example.com",
+            "survey_members-2-member_display_name": "Chewy Skywalker",
+            "survey_members-3-member_added": "on",
+            "survey_members-3-member_id": "11005",
+            "survey_members-3-member_email": "chewy.solo+777fe7c0-3354-425a-94af-e3d903128bf3@example.com",
+            "survey_members-3-member_display_name": "Chewy Solo",
+            "survey_members-4-member_added": "on",
+            "survey_members-4-member_id": "11003",
+            "survey_members-4-member_email": "chewy.solo+e41d6404-4c32-4b4b-a96b-5beb47d6f30f@example.com",
+            "survey_members-4-member_display_name": "Chewy Solo",
+            "survey_members-5-member_added": "on",
+            "survey_members-5-member_id": "11004",
+            "survey_members-5-member_email": "chewy.solo+e7bf8943-f362-424e-926a-ebf1bade560b@example.com",
+            "survey_members-5-member_display_name": "Chewy Solo",
+            "survey_members-6-member_added": "on",
+            "survey_members-6-member_id": "11001",
+            "survey_members-6-member_email": "han.fett+2600e775-4b12-4718-8017-2d2f2040f8bb@example.com",
+            "survey_members-6-member_display_name": "Han Fett",
+            "survey_members-7-member_added": "on",
+            "survey_members-7-member_id": "11007",
+            "survey_members-7-member_email": "han.hutt+ce92821f-e2df-495e-b2d3-f42e53e61ed1@example.com",
+            "survey_members-7-member_display_name": "Han Hutt",
+            "survey_members-8-member_added": "on",
+            "survey_members-8-member_id": "11000",
+            "survey_members-8-member_email": "leia.solo+b0672206-a76c-4148-bd80-1c73b8990bb6@example.com",
+            "survey_members-8-member_display_name": "Leia Solo",
+            "survey_members-9-member_added": "on",
+            "survey_members-9-member_id": "11002",
+            "survey_members-9-member_email": "luke.skywalker+f3bb4613-498e-4e20-b2eb-0d737f75271c@example.com",
+            "survey_members-9-member_display_name": "Luke Skywalker",
+        }
+        print(data)
+        response_2 = self.client.post(response_1.url, data)  # noqa
+        preview_survey_url = response_2.url
+
+        self.schedule_task(self._preview_survey, args=[preview_survey_url, ])
+
+    def _preview_survey(self, preview_survey_url):
+        response_1 = self.client.get(preview_survey_url)
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+        }
+        print(data)
+        response_2 = self.client.post(response_1.url, data)  # noqa
 
     @task
     def stop(self):
