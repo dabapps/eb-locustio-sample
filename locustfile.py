@@ -18,13 +18,22 @@ URL_PLACEHOLDER_MATCHERS = (
     (re.compile(r"/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/"), "/[uuid]/"),   # UUID id
     (re.compile(r"/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"), "/[uuid]"),   # UUID id
     (re.compile(r"/[a-f0-9]{40}/"), "/[token]/"),   # not sure
+    (re.compile(r"http:\/\/[^\/]+\/"), "/"),   # remove domain prefix (if any)
 )
 
 
 def create_placeholdered_url_for_stats(full_url):
+    """
+    We need to create consistent and generic URLs to display in the
+    stats for Locust. This is a generic routine that attempts to
+    replace any ID's with a placeholder name, and remove domains
+    and add a starting slash - just to keep it all consistent.
+    """
     placheholdered_url = full_url
     for (pattern, replacement) in URL_PLACEHOLDER_MATCHERS:
         placheholdered_url = pattern.sub(replacement, placheholdered_url)
+    if placheholdered_url[0] != '/':
+        placheholdered_url = '/' + placheholdered_url
     return placheholdered_url
 
 
@@ -76,7 +85,7 @@ class CompleteSurvey(TaskSet):
 
     def _fetch_team_member_details_from_master(self):
         print("CompleteSurvey: _fetch_team_member_details_from_master")
-        request_1 = requests.get("http://{}:8000/get_next_team_member".format(SMTPD_HOST))
+        request_1 = requests.get("http://{}:8089/get_next_team_member".format(SMTPD_HOST))
         message = request_1.text
         if TEAM_MEMBER_NOT_AVAILABLE not in message:
             survey_url = message
@@ -157,7 +166,7 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        request_1 = requests.get("http://{}:8000/get_last_message_for/{}".format(SMTPD_HOST, email))
+        request_1 = requests.get("http://{}:8089/get_last_message_for/{}".format(SMTPD_HOST, email))
         message = str(request_1.content)
         if message is not None:
             print('GOT MESSAGE!')
@@ -312,5 +321,5 @@ class WeThrive(TaskSet):
 class MyLocust(HttpLocust):
     host = os.getenv('TARGET_URL', "http://localhost")
     task_set = WeThrive
-    min_wait = 250
-    max_wait = 500
+    min_wait = 2000
+    max_wait = 5000
