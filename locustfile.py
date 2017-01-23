@@ -174,7 +174,7 @@ class CreateSurvey(TaskSet):
         print('wait_for_email ({}  {})'.format(name, email))
         request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(INTERNAL_HOSTNAME, email))
         message = request_1.text
-        if message is not NO_EMAIL_AVAILABLE:
+        if message != NO_EMAIL_AVAILABLE:
             print('GOT MESSAGE!')
             # print(message)
             matches = re.search("(account/activate/[^\/]+/)", message, re.MULTILINE)
