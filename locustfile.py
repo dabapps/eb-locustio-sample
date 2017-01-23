@@ -85,7 +85,7 @@ class CompleteSurvey(TaskSet):
 
     def _fetch_team_member_details_from_master(self):
         print("CompleteSurvey: _fetch_team_member_details_from_master")
-        request_1 = requests.get("http://{}:8089/get_next_team_member".format(SMTPD_HOST))
+        request_1 = requests.get("http://{}:80/get_next_team_member".format(SMTPD_HOST))
         message = request_1.text
         if TEAM_MEMBER_NOT_AVAILABLE not in message:
             survey_url = message
@@ -166,7 +166,7 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        request_1 = requests.get("http://{}:8089/get_last_message_for/{}".format(SMTPD_HOST, email))
+        request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(SMTPD_HOST, email))
         message = str(request_1.content)
         if message is not None:
             print('GOT MESSAGE!')
