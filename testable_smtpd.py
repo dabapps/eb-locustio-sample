@@ -1,9 +1,11 @@
+import re
 import os
 import smtpd
 import asyncore
 import requests
 import logging
 from slugify import slugify
+from multiprocessing import Lock
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
@@ -24,6 +26,40 @@ def get_last_message_for(email_address):
             return fh.read()
     except FileNotFoundError:
         pass
+
+
+team_member_acquisition_lock = Lock()
+TEAM_MEMBER_EMAIL_IDENTIFIER = "send you the attached questionnaire"
+TEAM_MEMBER_SURVEY_LINK_PATTERN = 'href="[^"]+/(questionnaire/[^"]+)"'
+TEAM_MEMBER_NOT_AVAILABLE = "n/a"
+
+
+def _find_team_member_email():
+    for dir_name, subdir_names, filenames_list in os.walk(SMTPD_DIR):
+        for filename in filenames_list:
+            full_filename = os.path.join(dir_name, filename)
+            # print(full_filename)
+            with open(full_filename, "r") as file_handle:
+                for line in file_handle:
+                    if re.search(TEAM_MEMBER_EMAIL_IDENTIFIER, line):
+                        # Extract URL
+                        for line in file_handle:
+                            # <a href="http://wethrive.ctf.sh:32768/questionnaire/42761994-ee94-47c3-825c-1daa6a48d800">here</a>
+                            m = re.search(TEAM_MEMBER_SURVEY_LINK_PATTERN, line)
+                            if m:
+                                # Delete file
+                                os.remove(full_filename)
+                                return m.group(1)
+    return TEAM_MEMBER_NOT_AVAILABLE
+
+
+def get_next_team_member():
+    # Try and make sure we don't hand out the same one multiple times
+    # by using a lock.
+    team_member_acquisition_lock.acquire()
+    result = _find_team_member_email()
+    team_member_acquisition_lock.release()
+    return result
 
 
 class PutLastestEmailInFilesystem(smtpd.SMTPServer):
