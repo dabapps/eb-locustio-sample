@@ -1,6 +1,6 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from testable_smtpd import TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member
+from testable_smtpd import NO_EMAIL_AVAILABLE, TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member
 from bs4 import BeautifulSoup
 import uuid
 import random
@@ -173,8 +173,8 @@ class CreateSurvey(TaskSet):
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
         request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(INTERNAL_HOSTNAME, email))
-        message = str(request_1.content)
-        if message is not None:
+        message = request_1.text
+        if message is not NO_EMAIL_AVAILABLE:
             print('GOT MESSAGE!')
             # print(message)
             matches = re.search("(account/activate/[^\/]+/)", message, re.MULTILINE)

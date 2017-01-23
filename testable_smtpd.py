@@ -12,6 +12,8 @@ logger = logging.getLogger(__file__)
 SMTPD_DIR = os.getenv("SMTPD_DIR", "/tmp/smtpd/")
 SMTPD_PORT = os.getenv('SMTPD_PORT', 2525)
 
+NO_EMAIL_AVAILABLE = "n/a"
+
 
 def get_last_message_for(email_address):
     filename = slugify(email_address)
@@ -20,6 +22,7 @@ def get_last_message_for(email_address):
             return fh.read()
     except IOError:
         pass
+    return NO_EMAIL_AVAILABLE
 
 
 team_member_acquisition_lock = Lock()
