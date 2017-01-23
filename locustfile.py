@@ -1,6 +1,6 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from testable_smtpd import TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, SMTPD_HOST, get_last_message_for, get_next_team_member
+from testable_smtpd import TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member
 from bs4 import BeautifulSoup
 import uuid
 import random
@@ -13,6 +13,9 @@ import flask
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
+
+
+INTERNAL_HOSTNAME = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
 
 
 URL_PLACEHOLDER_MATCHERS = (
@@ -55,7 +58,7 @@ def generate_random_email_and_name():
 @web.app.route("/smtp")
 def www_smtp():
     return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_HOST_PORT={}</pre>".format(
-        SMTPD_HOST,
+        flask.request.environ['HTTP_HOST'],
         "",
         "",
         SMTPD_PORT
@@ -88,7 +91,7 @@ class CompleteSurvey(TaskSet):
 
     def _fetch_team_member_details_from_master(self):
         print("CompleteSurvey: _fetch_team_member_details_from_master")
-        request_1 = requests.get("http://{}:80/get_next_team_member".format(SMTPD_HOST))
+        request_1 = requests.get("http://{}:80/get_next_team_member".format(INTERNAL_HOSTNAME))
         message = request_1.text
         if TEAM_MEMBER_NOT_AVAILABLE not in message:
             survey_url = message
@@ -169,7 +172,7 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(SMTPD_HOST, email))
+        request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(INTERNAL_HOSTNAME, email))
         message = str(request_1.content)
         if message is not None:
             print('GOT MESSAGE!')
