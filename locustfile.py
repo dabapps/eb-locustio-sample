@@ -176,7 +176,7 @@ class CreateSurvey(TaskSet):
                 finish_signup_url = matches.group(1)
                 self.schedule_task(self._finish_signup, args=[name, email, finish_signup_url])
             else:
-                raise Exception("Unable to extract activation link!")
+                raise Exception("Unable to extract activation link! {}".format(message))
         else:
             self.schedule_task(self._wait_for_signup_email, args=[name, email])
 
