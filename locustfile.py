@@ -52,7 +52,7 @@ def generate_random_email_and_name():
 
 @web.app.route("/smtp")
 def www_smtp():
-    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD=\nEMAIL_HOST_USER=\nEMAIL_HOST_PORT={}</pre>".format(
+    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_HOST_PORT={}</pre>".format(
         SMTPD_HOST,
         "",
         "",
