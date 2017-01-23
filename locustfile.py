@@ -327,5 +327,5 @@ class WeThrive(TaskSet):
 class MyLocust(HttpLocust):
     host = os.getenv('TARGET_URL', "http://localhost")
     task_set = WeThrive
-    min_wait = 2000
-    max_wait = 5000
+    min_wait = 250
+    max_wait = 500
