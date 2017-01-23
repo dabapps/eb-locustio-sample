@@ -8,6 +8,8 @@ from slugify import slugify
 import re
 import requests
 from datetime import datetime
+import subprocess
+
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
@@ -62,8 +64,9 @@ def www_smtp():
 
 @web.app.route("/env")
 def www_env():
-    return "<pre>{}</pre>".format(
-        "\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()])
+    return "<pre>{}</pre><hr /><pre>{}</pre>".format(
+        "\n".join(["{} = \"{}\"".format(k, v) for (k, v) in os.environ.items()]),
+        subprocess.check_output(["/opt/elasticbeanstalk/bin/get-config", "environment"])
     )
 
 
