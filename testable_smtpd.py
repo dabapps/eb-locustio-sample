@@ -24,7 +24,7 @@ def get_last_message_for(email_address):
     try:
         with open(os.path.join(SMTPD_DIR, filename), 'r') as fh:
             return fh.read()
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
