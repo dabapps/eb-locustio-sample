@@ -259,7 +259,7 @@ class CreateSurvey(TaskSet):
 
     def _create_team(self):
         num_team_members_to_create = random.choice([10, 50, 100, 500])
-        response_1 = self.client.get("people/", name="people/ ({} members)".format(num_team_members_to_create))
+        response_1 = self.client.get("people/")
         soup = BeautifulSoup(response_1.content, 'html.parser')
         csrfmiddlewaretoken = soup.form.input['value']
         team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, num_team_members_to_create)])
@@ -269,7 +269,7 @@ class CreateSurvey(TaskSet):
             "verb": "Add",
         }
         print(data)
-        response_2 = self.client.post('people/', data)  # noqa
+        response_2 = self.client.post('people/', data, name="people/ ({} members)".format(num_team_members_to_create))  # noqa
         # print(response_2.content)
 
         self.schedule_task(self._create_survey)
