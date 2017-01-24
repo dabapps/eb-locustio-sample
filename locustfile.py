@@ -67,15 +67,14 @@ def generate_random_email_and_name():
 
 
 print(web.app.url_map)
-print(web.app.url_map.keys())
+print(web.app.url_map._rules)
 
 
 @web.app.route("/")
 def www_index():
-    return "YAY!"
-    # html = web.index()
-    # html = html.replace('Locust', 'Noot')
-    # return html
+    html = web.index()
+    html = html.replace('Locust', 'Noot')
+    return html
 
 
 @web.app.route("/smtp")
