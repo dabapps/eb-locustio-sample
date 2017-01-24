@@ -66,6 +66,9 @@ def generate_random_email_and_name():
     )
 
 
+print(flask.Flask.url_map)
+
+
 @web.app.route("/")
 def www_index():
     return "YAY!"
