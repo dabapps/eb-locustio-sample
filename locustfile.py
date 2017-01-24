@@ -258,10 +258,10 @@ class CreateSurvey(TaskSet):
         self.schedule_task(self._create_team)
 
     def _create_team(self):
-        response_1 = self.client.get("people/")
+        num_team_members_to_create = random.choice([10, 50, 100, 500])
+        response_1 = self.client.get("people/", name="people/ ({} members)".format(num_team_members_to_create))
         soup = BeautifulSoup(response_1.content, 'html.parser')
         csrfmiddlewaretoken = soup.form.input['value']
-        num_team_members_to_create = 10
         team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, num_team_members_to_create)])
         data = {
             "csrfmiddlewaretoken": csrfmiddlewaretoken,
