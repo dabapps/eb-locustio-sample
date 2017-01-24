@@ -1,2 +1,2 @@
 build: ./build.rb
-smptd: cp smtpd.py /
+slurping-smptd: cp slurping_smtpd.py /
