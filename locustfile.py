@@ -66,7 +66,7 @@ def generate_random_email_and_name():
     )
 
 
-@web.app.route("/a")
+@web.app.route("/")
 def www_index():
     return "YAY!"
     # html = web.index()
