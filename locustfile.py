@@ -77,12 +77,13 @@ remove_current_index_rule_so_we_can_replace_it()
 
 
 def extra_info():
-    return www_smtp()
+    other_info = "TARGET_URL = {}".format(os.getenv('TARGET_URL', "http://localhost"))
+    return [www_smtp(), other_info]
 
 
 @web.app.route("/")
 def www_index():
-    extra_html = extra_info()
+    extra_html = "<hr />".join(extra_info())
     html = web.index()  # the original index page
     html = html.replace('<div class="main">', '{}<div class="main">'.format(extra_html))
     return html
