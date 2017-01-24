@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 
 SMTPD_DIR = os.getenv("SMTPD_DIR", "/tmp/smtpd/")
-SMTPD_PORT = os.getenv('SMTPD_PORT', 25)
+SMTPD_PORT = os.getenv('SMTPD_PORT', 2525)
 
 NO_EMAIL_AVAILABLE = "n/a"
 
