@@ -85,10 +85,9 @@ remove_current_index_rule()
 
 @web.app.route("/")
 def www_index():
-    return "YAY!"
-    # html = web.index()
-    # html = html.replace('Locust', 'Noot')
-    # return html
+    html = web.index()
+    html = html.replace('Locust', 'Noot')
+    return html
 
 
 @web.app.route("/smtp")
