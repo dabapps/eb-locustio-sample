@@ -54,7 +54,7 @@ def _find_team_member_email():
             url = filehandle.read()  # it only contains the activation link
         os.remove(first_filename)
         return url
-    except KeyError:
+    except IndexError:
         return TEAM_MEMBER_NOT_AVAILABLE
 
 
