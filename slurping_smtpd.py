@@ -84,7 +84,10 @@ class PutLastestEmailInFilesystem(smtpd.SMTPServer):
 
 def create_tmp_dirs():
     for dirpath in [SMTPD_DIR, SMTPD_DIR_TEAM_MEMBERS]:
-        os.makedirs(dirpath, exist_ok=True)
+        try:
+            os.mkdir(dirpath)
+        except OSError as e:
+            print(e)
 
 if __name__ == "__main__":
     logger.info("Starting SMTPD...")
