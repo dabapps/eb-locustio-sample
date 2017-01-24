@@ -69,7 +69,10 @@ class PutLastestEmailInFilesystem(smtpd.SMTPServer):
                 # print(data)
 
 if __name__ == "__main__":
-    os.mkdir(SMTPD_DIR)
     logger.info("Starting SMTPD...")
+    try:
+        os.mkdir(SMTPD_DIR)
+    except IOError:
+        pass
     s = PutLastestEmailInFilesystem(("0.0.0.0", SMTPD_PORT), None)
     asyncore.loop()
