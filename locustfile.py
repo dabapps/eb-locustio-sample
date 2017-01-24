@@ -76,27 +76,29 @@ def remove_current_index_rule_so_we_can_replace_it():
 remove_current_index_rule_so_we_can_replace_it()
 
 
+def smtp_info():
+    return "EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_HOST_PORT={}".format(
+        flask.request.environ['HTTP_HOST'],
+        "",
+        "",
+        SMTPD_PORT
+    )
+
+
+def target_info():
+    return "TARGET_URL = {}".format(os.getenv('TARGET_URL', "http://localhost"))
+
+
 def extra_info():
-    other_info = "TARGET_URL = {}".format(os.getenv('TARGET_URL', "http://localhost"))
-    return [www_smtp(), other_info]
+    return [smtp_info(), target_info()]
 
 
 @web.app.route("/")
 def www_index():
     extra_html = "<hr />".join(extra_info())
     html = web.index()  # the original index page
-    html = html.replace('<div class="main">', '{}<div class="main">'.format(extra_html))
+    html = html.replace('<div class="main">', '<small><pre>{}</pre></small><div class="main">'.format(extra_html))
     return html
-
-
-@web.app.route("/smtp")
-def www_smtp():
-    return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_HOST_PORT={}</pre>".format(
-        flask.request.environ['HTTP_HOST'],
-        "",
-        "",
-        SMTPD_PORT
-    )
 
 
 @web.app.route("/env")
