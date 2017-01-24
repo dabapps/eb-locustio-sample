@@ -66,27 +66,23 @@ def generate_random_email_and_name():
     )
 
 
-def remove_current_index_rule():
-    print(web.app.url_map)
-    print(dir(web.app.url_map))
-    print(web.app.url_map._rules)
-    print(dir(web.app.url_map._rules))
-    print(web.app.url_map._rules[0])
-    print(dir(web.app.url_map._rules[0]))
-
+def remove_current_index_rule_so_we_can_replace_it():
     for rule in web.app.url_map._rules:
         print(rule.endpoint)
         if rule.endpoint == 'index':
             web.app.url_map._rules.remove(rule)
             print('REMOVED ORIG / RULE')
 
-remove_current_index_rule()
+remove_current_index_rule_so_we_can_replace_it()
+
+
+def extra_info():
+    return www_smtp()
 
 
 @web.app.route("/")
 def www_index():
-    extra_html = www_smtp()
-
+    extra_html = extra_info()
     html = web.index()
     html = html.replace('<div class="main">', '{}<div class="main">'.format(extra_html))
     return html
