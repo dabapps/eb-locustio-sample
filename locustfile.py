@@ -83,7 +83,7 @@ def extra_info():
 @web.app.route("/")
 def www_index():
     extra_html = extra_info()
-    html = web.index()
+    html = web.index()  # the original index page
     html = html.replace('<div class="main">', '{}<div class="main">'.format(extra_html))
     return html
 

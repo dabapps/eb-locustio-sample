@@ -32,6 +32,15 @@ TEAM_MEMBER_NOT_AVAILABLE = "n/a"
 
 
 def _find_team_member_email():
+    """
+    You don't need to tell me this is awful and could be sped up :)
+    It's just not quite awful enough for me to care just yet.
+
+    Caching some may work, but I'm not sure if this is run in threads.
+    The right answer is probably to stick all the emails into Redis
+    instead of the filesystem.  Clients could then pull them straight
+    from redis on the master.
+    """
     for dir_name, subdir_names, filenames_list in os.walk(SMTPD_DIR):
         for filename in filenames_list:
             full_filename = os.path.join(dir_name, filename)
