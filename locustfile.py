@@ -74,8 +74,10 @@ print(web.app.url_map._rules[0])
 print(dir(web.app.url_map._rules[0]))
 
 for rule in web.app.url_map._rules:
+    print(rule.endpoint)
     if rule.endpoint == '/':
         web.app.url_map.remove(rule)
+        print('REMOVED ORIG / RULE')
 
 
 @web.app.route("/")
