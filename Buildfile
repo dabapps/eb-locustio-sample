@@ -1,2 +1,2 @@
 build: ./build.rb
-testable-smptd: cp testable_smtpd.py /
+smptd: cp smtpd.py /
