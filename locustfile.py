@@ -88,7 +88,7 @@ def www_index():
     extra_html = www_smtp()
 
     html = web.index()
-    html = html.replace('<div class="boxes">', '{}<div class="boxes">'.format(extra_html))
+    html = html.replace('<div class="main">', '{}<div class="main">'.format(extra_html))
     return html
 
 
