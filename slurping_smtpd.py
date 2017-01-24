@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 
 SMTPD_DIR = os.getenv("SMTPD_DIR", "/tmp/smtpd/")
+SMTPD_DIR_TEAM_MEMBERS = os.path.join(SMTPD_DIR, 'team_members')
 SMTPD_PORT = os.getenv('SMTPD_PORT', 2525)
 
 NO_EMAIL_AVAILABLE = "n/a"
@@ -31,6 +32,12 @@ TEAM_MEMBER_SURVEY_LINK_PATTERN = 'href="[^"]+/(questionnaire/[^"]+)"'
 TEAM_MEMBER_NOT_AVAILABLE = "n/a"
 
 
+def _extract_activation_link(content):
+    m = re.search(TEAM_MEMBER_SURVEY_LINK_PATTERN, content, re.MULTILINE)
+    if m:
+        return m.group(1)
+
+
 def _find_team_member_email():
     """
     You don't need to tell me this is awful and could be sped up :)
@@ -41,22 +48,14 @@ def _find_team_member_email():
     instead of the filesystem.  Clients could then pull them straight
     from redis on the master.
     """
-    for dir_name, subdir_names, filenames_list in os.walk(SMTPD_DIR):
-        for filename in filenames_list:
-            full_filename = os.path.join(dir_name, filename)
-            # print(full_filename)
-            with open(full_filename, "r") as file_handle:
-                for line in file_handle:
-                    if re.search(TEAM_MEMBER_EMAIL_IDENTIFIER, line):
-                        # Extract URL
-                        for line in file_handle:
-                            # <a href="http://wethrive.ctf.sh:32768/questionnaire/42761994-ee94-47c3-825c-1daa6a48d800">here</a>
-                            m = re.search(TEAM_MEMBER_SURVEY_LINK_PATTERN, line)
-                            if m:
-                                # Delete file
-                                os.remove(full_filename)
-                                return m.group(1)
-    return TEAM_MEMBER_NOT_AVAILABLE
+    try:
+        first_filename = os.listdir(SMTPD_DIR_TEAM_MEMBERS)[0]
+        with open(first_filename, 'r') as filehandle:
+            url = filehandle.read()  # it only contains the activation link
+        os.remove(first_filename)
+        return url
+    except KeyError:
+        return TEAM_MEMBER_NOT_AVAILABLE
 
 
 def get_next_team_member():
@@ -70,18 +69,25 @@ def get_next_team_member():
 
 class PutLastestEmailInFilesystem(smtpd.SMTPServer):
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
+        write_into_dir = SMTPD_DIR
+        if re.search(TEAM_MEMBER_EMAIL_IDENTIFIER, data):
+            write_into_dir = SMTPD_DIR_TEAM_MEMBERS
+            # reduce contents to just the activation link
+            data = _extract_activation_link(data)
         for email_address in rcpttos:
-            filename = os.path.join(SMTPD_DIR, slugify(email_address))
+            filename = os.path.join(write_into_dir, slugify(email_address))
             with open(filename, 'w+') as fh:
                 fh.write(data)
                 logger.info("Writing email to: {}".format(filename))
                 # print(data)
 
+
+def create_tmp_dirs():
+    for dirpath in [SMTPD_DIR, SMTPD_DIR_TEAM_MEMBERS]:
+        os.makedirs(dirpath, exist_ok=True)
+
 if __name__ == "__main__":
     logger.info("Starting SMTPD...")
-    try:
-        os.mkdir(SMTPD_DIR)
-    except OSError:
-        pass
+    create_tmp_dirs()
     s = PutLastestEmailInFilesystem(("0.0.0.0", SMTPD_PORT), None)
     asyncore.loop()
