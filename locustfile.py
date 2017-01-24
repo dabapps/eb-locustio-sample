@@ -1,6 +1,6 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from smtpd import NO_EMAIL_AVAILABLE, TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member
+from slurping_smtpd import NO_EMAIL_AVAILABLE, TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member
 from bs4 import BeautifulSoup
 import uuid
 import random
