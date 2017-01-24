@@ -49,7 +49,7 @@ def _find_team_member_email():
     from redis on the master.
     """
     try:
-        first_filename = os.join(SMTPD_DIR_TEAM_MEMBERS, os.listdir(SMTPD_DIR_TEAM_MEMBERS)[0])
+        first_filename = os.path.join(SMTPD_DIR_TEAM_MEMBERS, os.listdir(SMTPD_DIR_TEAM_MEMBERS)[0])
         with open(first_filename, 'r') as filehandle:
             url = filehandle.read()  # it only contains the activation link
         os.remove(first_filename)
