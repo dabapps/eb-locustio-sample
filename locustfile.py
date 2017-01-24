@@ -67,6 +67,7 @@ def generate_random_email_and_name():
 
 
 print(web.app.url_map)
+print(web.app.url_map.keys())
 
 
 @web.app.route("/")
