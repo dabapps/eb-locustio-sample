@@ -72,7 +72,7 @@ if __name__ == "__main__":
     logger.info("Starting SMTPD...")
     try:
         os.mkdir(SMTPD_DIR)
-    except IOError:
+    except OSError:
         pass
     s = PutLastestEmailInFilesystem(("0.0.0.0", SMTPD_PORT), None)
     asyncore.loop()
