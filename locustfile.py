@@ -15,7 +15,18 @@ FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
 
 
-INTERNAL_HOSTNAME = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
+# MASTER_IP = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
+MASTER_IP = "127.0.0.1"
+MASTER_PORT = os.getenv("MASTER_PORT", "80")
+
+try:
+    with open(".masterIP", 'r') as master_ip_file:
+        MASTER_IP = master_ip_file.read()
+        print("Found .masterIP file - using its value: {}".format(MASTER_IP))
+except IOError:
+    pass
+
+print("MASTER_IP: {}\nMASTER_PORT: {}\n".format(MASTER_IP, MASTER_PORT))
 
 
 URL_PLACEHOLDER_MATCHERS = (
@@ -91,7 +102,7 @@ class CompleteSurvey(TaskSet):
 
     def _fetch_team_member_details_from_master(self):
         print("CompleteSurvey: _fetch_team_member_details_from_master")
-        request_1 = requests.get("http://{}:80/get_next_team_member".format(INTERNAL_HOSTNAME))
+        request_1 = requests.get("http://{}:{}/get_next_team_member".format(MASTER_IP, MASTER_PORT))
         message = request_1.text
         if TEAM_MEMBER_NOT_AVAILABLE not in message:
             survey_url = message
@@ -172,7 +183,7 @@ class CreateSurvey(TaskSet):
 
     def _wait_for_signup_email(self, name, email):
         print('wait_for_email ({}  {})'.format(name, email))
-        request_1 = requests.get("http://{}:80/get_last_message_for/{}".format(INTERNAL_HOSTNAME, email))
+        request_1 = requests.get("http://{}:{}/get_last_message_for/{}".format(MASTER_IP, MASTER_PORT, email))
         message = request_1.text
         if message != NO_EMAIL_AVAILABLE:
             print('GOT MESSAGE!')
