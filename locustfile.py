@@ -68,7 +68,9 @@ def generate_random_email_and_name():
 
 @web.app.route("/")
 def www_index():
-    return web.index()
+    html = web.index()
+    html = html.replace('Locust', 'Noot')
+    return html
 
 
 @web.app.route("/smtp")
