@@ -66,7 +66,7 @@ def generate_random_email_and_name():
     )
 
 
-print(flask.flask.Flask.url_map)
+print(web.app.url_map)
 
 
 @web.app.route("/")
