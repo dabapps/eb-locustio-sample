@@ -352,8 +352,6 @@ class WeThrive(TaskSet):
     tasks = {
         CreateSurvey: 1,
         CompleteSurvey: 10,
-        # RespondSurvey: 10,
-        # ViewReports: 1,
     }
 
 
