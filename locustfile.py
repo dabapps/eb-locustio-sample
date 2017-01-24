@@ -66,6 +66,11 @@ def generate_random_email_and_name():
     )
 
 
+@web.app.route("/")
+def www_index():
+    return web.index()
+
+
 @web.app.route("/smtp")
 def www_smtp():
     return "<pre>EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_HOST_PORT={}</pre>".format(
