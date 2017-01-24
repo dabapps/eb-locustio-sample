@@ -73,6 +73,10 @@ print(dir(web.app.url_map._rules))
 print(web.app.url_map._rules[0])
 print(dir(web.app.url_map._rules[0]))
 
+for rule in web.app.url_map._rules:
+    if rule.endpoint == '/':
+        web.app.url_map.remove(rule)
+
 
 @web.app.route("/")
 def www_index():
