@@ -66,18 +66,21 @@ def generate_random_email_and_name():
     )
 
 
-print(web.app.url_map)
-print(dir(web.app.url_map))
-print(web.app.url_map._rules)
-print(dir(web.app.url_map._rules))
-print(web.app.url_map._rules[0])
-print(dir(web.app.url_map._rules[0]))
+def remove_current_index_rule():
+    print(web.app.url_map)
+    print(dir(web.app.url_map))
+    print(web.app.url_map._rules)
+    print(dir(web.app.url_map._rules))
+    print(web.app.url_map._rules[0])
+    print(dir(web.app.url_map._rules[0]))
 
-for rule in web.app.url_map._rules:
-    print(rule.endpoint)
-    if rule.endpoint == 'index':
-        web.app.url_map._rules.remove(rule)
-        print('REMOVED ORIG / RULE')
+    for rule in web.app.url_map._rules:
+        print(rule.endpoint)
+        if rule.endpoint == 'index':
+            web.app.url_map._rules.remove(rule)
+            print('REMOVED ORIG / RULE')
+
+remove_current_index_rule()
 
 
 @web.app.route("/")
