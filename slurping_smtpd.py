@@ -27,7 +27,7 @@ def get_last_message_for(email_address):
 
 
 team_member_acquisition_lock = Lock()
-TEAM_MEMBER_EMAIL_IDENTIFIER = "send you the attached questionnaire"
+TEAM_MEMBER_EMAIL_IDENTIFIER = 'href="[^"]+/questionnaire/[^"]+"'
 TEAM_MEMBER_SURVEY_LINK_PATTERN = 'href="[^"]+/(questionnaire/[^"]+)"'
 TEAM_MEMBER_NOT_AVAILABLE = "n/a"
 
