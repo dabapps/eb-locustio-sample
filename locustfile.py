@@ -78,7 +78,7 @@ remove_current_index_rule_so_we_can_replace_it()
 
 
 def smtp_info():
-    return "EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_PORT={}".format(
+    return "EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_PORT={}\nEMAIL_USE_TLS=False".format(
         flask.request.environ['HTTP_HOST'],
         "",
         "",
