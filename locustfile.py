@@ -35,6 +35,7 @@ URL_PLACEHOLDER_MATCHERS = (
     (re.compile(r"/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"), "/[uuid]"),   # UUID id
     (re.compile(r"/[a-f0-9]{40}/"), "/[token]/"),   # not sure
     (re.compile(r"http:\/\/[^\/]+\/"), "/"),   # remove domain prefix (if any)
+    (re.compile(r"https:\/\/[^\/]+\/"), "/"),   # remove domain prefix (if any)
 )
 
 
