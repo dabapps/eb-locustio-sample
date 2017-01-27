@@ -262,7 +262,7 @@ class CreateSurvey(TaskSet):
         self.schedule_task(self._create_team)
 
     def _create_team(self):
-        num_team_members_to_create = random.choice([10, 50, 100, 250])   # 250 is max for this method
+        num_team_members_to_create = random.choice([10, 50, 100, 248])   # 250 is max for this method
         response_1 = self.client.get("people/")
         soup = BeautifulSoup(response_1.content, 'html.parser')
         csrfmiddlewaretoken = soup.form.input['value']
