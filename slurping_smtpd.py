@@ -16,6 +16,14 @@ SMTPD_PORT = os.getenv('SMTPD_PORT', 2525)
 NO_EMAIL_AVAILABLE = "n/a"
 
 
+def get_smtpd_status_info():
+    return "Team Member Emails backlog: {}".format(get_team_member_backlog_count())
+
+
+def get_team_member_backlog_count():
+    return len([name for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) if os.path.isfile(name)])
+
+
 def get_last_message_for(email_address):
     filename = slugify(email_address)
     try:
