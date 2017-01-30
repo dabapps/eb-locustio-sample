@@ -21,7 +21,7 @@ def get_smtpd_status_info():
 
 
 def get_team_member_backlog_count():
-    return len([name for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) if os.path.isfile(name)])
+    return len([name for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) if name[0] != '.'])
 
 
 def get_last_message_for(email_address):
