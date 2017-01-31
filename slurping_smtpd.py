@@ -21,6 +21,8 @@ def delete_smtp_temp_files():
         if os.path.isfile(filename_to_delete):
             print("Removing tmp file: {}".format(filename_to_delete))
             os.remove(filename_to_delete)
+        else:
+            print("NOT Removing tmp file: {}".format(filename_to_delete))
 
 
 def get_smtpd_status_info():
