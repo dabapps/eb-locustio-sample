@@ -354,7 +354,7 @@ class CreateSurvey(TaskSet):
         self.client.get(view_report_url,
                         name=create_placeholdered_url_for_stats(view_report_url))
 
-        if view_count < 100:
+        if view_count < 10:
             for _i in range(0, 30):
                 self.schedule_task(self._do_nothing)
             self.schedule_task(self._view_report, args=[survey_id, view_count + 1])
@@ -372,7 +372,7 @@ class CreateSurvey(TaskSet):
 class WeThrive(TaskSet):
     tasks = {
         CreateSurvey: 1,
-        # CompleteSurvey: 50,
+        CompleteSurvey: 50,
     }
 
 
