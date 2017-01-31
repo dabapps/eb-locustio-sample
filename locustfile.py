@@ -345,12 +345,11 @@ class CreateSurvey(TaskSet):
                                       data,
                                       name=create_placeholdered_url_for_stats(response_1.url))  # noqa
 
-        survey_id = response_1.url
-        self.schedule_task(self._view_report, args=[survey_id, ])
+        self.schedule_task(self._preview_survey, args=[preview_survey_url, ])
 
-    def _view_report(self, survey_id):
-        print(survey_id)
-        self.schedule_task(self._view_report, args=[survey_id, ])
+#    def _view_report(self, survey_id):
+#        print(survey_id)
+#        self.schedule_task(self._view_report, args=[survey_id, ])
 
     @task
     def stop(self):
