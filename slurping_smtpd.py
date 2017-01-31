@@ -17,13 +17,14 @@ NO_EMAIL_AVAILABLE = "n/a"
 
 
 def delete_smtp_stale_temp_files():
-    pass
-    # for filename_to_delete in [os.path.join(SMTPD_DIR, name) for name in os.listdir(SMTPD_DIR)] + [os.path.join(SMTPD_DIR_TEAM_MEMBERS, name) for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS)]:
-    #     if os.path.isfile(filename_to_delete):
-    #         print("Removing tmp file: {}".format(filename_to_delete))
-    #         os.remove(filename_to_delete)
-    #     else:
-    #         print("NOT Removing tmp file: {}".format(filename_to_delete))
+    for filename_to_delete in [os.path.join(SMTPD_DIR, name) for name in os.listdir(SMTPD_DIR)] + [os.path.join(SMTPD_DIR_TEAM_MEMBERS, name) for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS)]:
+        if os.path.isfile(filename_to_delete):
+            print("Removing tmp file: {}".format(filename_to_delete))
+            os.remove(filename_to_delete)
+        else:
+            print("NOT Removing tmp file: {}".format(filename_to_delete))
+
+delete_smtp_stale_temp_files()
 
 
 def get_smtpd_status_info():
