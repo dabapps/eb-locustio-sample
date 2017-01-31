@@ -273,7 +273,7 @@ class CreateSurvey(TaskSet):
             "verb": "Add",
         }
         print(data)
-        response_2 = self.client.post('people/', data, name="people/ ({} members)".format(num_team_members_to_create))  # noqa
+        response_2 = self.client.post('people/', data, name="/people/ ({} members)".format(num_team_members_to_create))  # noqa
         # print(response_2.content)
 
         self.schedule_task(self._create_survey)
