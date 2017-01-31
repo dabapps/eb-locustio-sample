@@ -17,9 +17,7 @@ NO_EMAIL_AVAILABLE = "n/a"
 
 
 def delete_smtp_temp_files():
-    print([name if os.path.isfile(name) else 0 for name in
-           [os.path.join(SMTPD_DIR, name) for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) + os.listdir(SMTPD_DIR)]
-           ])
+    print([name for name in [os.path.join(SMTPD_DIR, name) for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) + os.listdir(SMTPD_DIR)]])
     # [os.remove(name) if os.path.isfile(name) else 0 for name in
     #     [os.path.join(SMTPD_DIR, name) for name in os.listdir(SMTPD_DIR_TEAM_MEMBERS) + os.listdir(SMTPD_DIR)]
     #  ]
