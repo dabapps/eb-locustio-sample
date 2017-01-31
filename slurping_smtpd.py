@@ -24,8 +24,6 @@ def delete_smtp_stale_temp_files():
         else:
             print("NOT Removing tmp file: {}".format(filename_to_delete))
 
-delete_smtp_stale_temp_files()
-
 
 def get_smtpd_status_info():
     return "Team Member Emails backlog: {}".format(get_team_member_backlog_count())
@@ -110,6 +108,7 @@ def create_tmp_dirs():
 
 if __name__ == "__main__":
     logger.info("Starting SMTPD...")
+    delete_smtp_stale_temp_files()
     create_tmp_dirs()
     s = PutLastestEmailInFilesystem(("0.0.0.0", SMTPD_PORT), None)
     asyncore.loop()
