@@ -345,11 +345,29 @@ class CreateSurvey(TaskSet):
                                       data,
                                       name=create_placeholdered_url_for_stats(response_1.url))  # noqa
 
-        self.schedule_task(self._preview_survey, args=[preview_survey_url, ])
+        survey_id = [int(s) for s in response_1.url.split('/') if s.isdigit()][0]
+        self.schedule_task(self._view_report, args=[survey_id, ])
 
-#    def _view_report(self, survey_id):
-#        print(survey_id)
-#        self.schedule_task(self._view_report, args=[survey_id, ])
+    def _view_report(self, survey_id):
+        view_report_url = "/reports/{}/".format(survey_id)
+        print(view_report_url)
+        self.client.get(view_report_url,
+                        name=create_placeholdered_url_for_stats(view_report_url))
+
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._do_nothing)
+        self.schedule_task(self._view_report, args=[survey_id, ])
+
+    def _do_nothing(self):
+        print('_do_nothing')
 
     @task
     def stop(self):
