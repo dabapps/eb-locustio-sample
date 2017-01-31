@@ -1,6 +1,6 @@
 import os
 from locust import HttpLocust, TaskSet, task, web
-from slurping_smtpd import NO_EMAIL_AVAILABLE, TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member, get_smtpd_status_info, delete_smtp_temp_files
+from slurping_smtpd import NO_EMAIL_AVAILABLE, TEAM_MEMBER_NOT_AVAILABLE, SMTPD_PORT, get_last_message_for, get_next_team_member, get_smtpd_status_info, delete_smtp_stale_temp_files
 from bs4 import BeautifulSoup
 import uuid
 import random
@@ -383,5 +383,5 @@ class MyLocust(HttpLocust):
     max_wait = 5000
 
     def __init__(self, *args, **kwargs):
-        delete_smtp_temp_files()
+        delete_smtp_stale_temp_files()
         super(MyLocust, self).__init__(*args, **kwargs)
