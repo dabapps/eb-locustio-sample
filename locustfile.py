@@ -372,7 +372,7 @@ class CreateSurvey(TaskSet):
 class WeThrive(TaskSet):
     tasks = {
         CreateSurvey: 1,
-        CompleteSurvey: 50,
+        CompleteSurvey: 10,
     }
 
 
