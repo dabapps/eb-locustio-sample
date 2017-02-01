@@ -133,6 +133,8 @@ class CompleteSurvey(TaskSet):
         if TEAM_MEMBER_NOT_AVAILABLE not in message:
             survey_url = message
             self.schedule_task(self._fill_in_survey, args=[survey_url, ])
+        else:
+            self.schedule_task(self._fetch_team_member_details_from_master)
 
     def _fill_in_survey(self, survey_url):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
