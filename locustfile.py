@@ -134,8 +134,8 @@ class CompleteSurvey(TaskSet):
             survey_url = message
             self.schedule_task(self._fill_in_survey, args=[survey_url, ])
         else:
-            if retry_count < 5:    # Obvs not enough surveys, so potentially become a survey maker.
-                self.schedule_task(self._fetch_team_member_details_from_master, args=[retry_count + 1, ])
+            # if retry_count < 5:    # Obvs not enough surveys, so potentially become a survey maker.
+            self.schedule_task(self._fetch_team_member_details_from_master, args=[retry_count + 1, ])
 
     def _fill_in_survey(self, survey_url):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
@@ -265,19 +265,24 @@ class CreateSurvey(TaskSet):
         self.schedule_task(self._create_team)
 
     def _create_team(self):
-        num_team_members_to_create = random.choice([10, 50, 100, 248])   # 250 is max for this method
-        response_1 = self.client.get("people/")
-        soup = BeautifulSoup(response_1.content, 'html.parser')
-        csrfmiddlewaretoken = soup.form.input['value']
-        team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, num_team_members_to_create)])
-        data = {
-            "csrfmiddlewaretoken": csrfmiddlewaretoken,
-            "email_addresses": team_members_email_addresses_csv,
-            "verb": "Add",
-        }
-        print(data)
-        response_2 = self.client.post('people/', data, name="/people/ ({} members)".format(num_team_members_to_create))  # noqa
-        # print(response_2.content)
+        num_team_members_to_create = random.choice([100, 200, 1500])
+
+        # batch create them 200 at a time
+        batch_size = 200  # 250 (actually 248) is max for this method
+        while num_team_members_to_create > 0:
+            response_1 = self.client.get("people/")
+            soup = BeautifulSoup(response_1.content, 'html.parser')
+            csrfmiddlewaretoken = soup.form.input['value']
+            team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, batch_size)])
+            data = {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken,
+                "email_addresses": team_members_email_addresses_csv,
+                "verb": "Add",
+            }
+            print(data)
+            response_2 = self.client.post('people/', data, name="/people/ ({} members)".format(batch_size))  # noqa
+            # print(response_2.content)
+            num_team_members_to_create -= batch_size
 
         self.schedule_task(self._create_survey)
 
