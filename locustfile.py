@@ -126,7 +126,7 @@ class CompleteSurvey(TaskSet):
         print("CompleteSurvey: on_start")
         self.schedule_task(self._fetch_team_member_details_from_master)
 
-    def _fetch_team_member_details_from_master(self):
+    def _fetch_team_member_details_from_master(self, retry_count=0):
         print("CompleteSurvey: _fetch_team_member_details_from_master")
         request_1 = requests.get("http://{}:{}/get_next_team_member".format(MASTER_IP, MASTER_PORT))
         message = request_1.text
@@ -134,7 +134,8 @@ class CompleteSurvey(TaskSet):
             survey_url = message
             self.schedule_task(self._fill_in_survey, args=[survey_url, ])
         else:
-            self.schedule_task(self._fetch_team_member_details_from_master)
+            if retry_count < 5:    # Obvs not enough surveys, so potentially become a survey maker.
+                self.schedule_task(self._fetch_team_member_details_from_master, args=[retry_count + 1, ])
 
     def _fill_in_survey(self, survey_url):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
