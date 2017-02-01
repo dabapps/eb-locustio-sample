@@ -170,7 +170,7 @@ class CompleteSurvey(TaskSet):
         if data is not None:
             self.schedule_task(self._fill_in_subsequent_pages, args=[response_1.url, data])
         else:
-            print("No form in survey - survey closed?")
+            print("No form in survey - survey closed or already completed?")
             print(response_1.content)
 
     def _fill_in_subsequent_pages(self, page_url, data):
@@ -359,7 +359,7 @@ class CreateSurvey(TaskSet):
         # do nothing for a while to give a chance for someone to fill it in
         for _i in range(0, 30):
             self.schedule_task(self._do_nothing)
-        # now look report a few times
+        # now look at the report a few times  TODO: some different views
         self.schedule_task(self._view_report, args=[survey_id, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
