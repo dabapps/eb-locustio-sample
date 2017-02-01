@@ -171,7 +171,7 @@ class CompleteSurvey(TaskSet):
             self.schedule_task(self._fill_in_subsequent_pages, args=[response_1.url, data])
         else:
             print("No form in survey - survey closed?")
-            print(data)
+            print(response_1.content)
 
     def _fill_in_subsequent_pages(self, page_url, data):
         print("_fill_in_subsequent_pages: {}".format(page_url))
