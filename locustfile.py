@@ -109,6 +109,7 @@ def generate_random_team_member():
         generate_location(),
         generate_dept(),
         generate_langauge(),
+        "Custom 1",
     )
 
 
