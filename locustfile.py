@@ -268,8 +268,7 @@ class CreateSurvey(TaskSet):
             "first_name": random_name,
         }
         print(data)
-        response_2 = self.client.post("accounts/register/", data)
-        response_2
+        response_2 = self.client.post("accounts/register/", data)  # noqa
         # print(response_2.content)
 
         self.schedule_task(self._wait_for_signup_email, args=[random_name, random_email])
