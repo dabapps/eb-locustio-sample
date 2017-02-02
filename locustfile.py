@@ -9,8 +9,9 @@ import re
 import requests
 from datetime import datetime
 import flask
-import xlwt
+# import xlwt
 import io
+from openpyxl import Workbook
 
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
@@ -113,23 +114,11 @@ def generate_random_team_member():
 
 
 def create_team_member_excel_file(num_team_members):
-    book = xlwt.Workbook(encoding="utf-8")
-    sheet1 = book.add_sheet("Sheet 1")
-
-    col = 0
-    row = 0
-    for heading in ("Email", "Name", "Team", "Location", "Department", "Language", "Custom1", "Custom2"):
-        sheet1.write(row, col, heading)
-        col += 1
-    row += 1
-
+    book = Workbook()
+    sheet1 = book.active
+    sheet1.append(("Email", "Name", "Team", "Location", "Department", "Language", "Custom1", "Custom2"))
     for i in range(0, num_team_members):
-        col = 0
-        for column_data in generate_random_team_member():
-            sheet1.write(row, col, column_data)
-            col += 1
-        row += 1
-
+        sheet1.append(generate_random_team_member())
     raw_xls = io.BytesIO()
     book.save(raw_xls)
     return raw_xls.getvalue()
