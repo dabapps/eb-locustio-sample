@@ -111,6 +111,7 @@ def generate_random_team_member():
         generate_dept(),
         generate_langauge(),
         "Custom 1",
+        "Custom 2",
     )
 
 
@@ -202,14 +203,18 @@ class CompleteSurvey(TaskSet):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
         self.schedule_task(self._get_first_page, args=[survey_url, ])
 
-    def _extract_form_into_dict(self, content):
+    def _extract_form_into_dict(self, content, override={}):
         soup = BeautifulSoup(content, 'html.parser')
         form = soup.form
         if form:  # survey open?
             data = {}
             for input_tag in form.find_all('input'):
                 try:
-                    data[input_tag['name']] = input_tag['value']
+                    tag_name = input_tag['name']
+                    if tag_name in override:
+                        data[tag_name] = override[tag_name]
+                    else:
+                        data[tag_name] = input_tag['value']
                 except KeyError:
                     pass
             print(data)
@@ -313,36 +318,28 @@ class CreateSurvey(TaskSet):
 
     def _login(self, email, password):
         response_1 = self.client.get("accounts/login/")
-        soup = BeautifulSoup(response_1.content, 'html.parser')
-        csrfmiddlewaretoken = soup.form.input['value']
-        data = {
-            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+        data = self._extract_form_into_dict(response_1.content, {
             "username": email,
             "password": password,
-            "next": "/people/",
-        }
+        })
         print(data)
         response_2 = self.client.post('accounts/login/', data)  # noqa
         # print(response_2)
 
-        # for filter_name, tag_names in CUSTOM_FILTERS.items():
-        #     self.schedule_task(self._add_custom_filters, args=[filter_name, tag_names])
-        # self.schedule_task(self._create_team)
+        for filter_name, tag_names in CUSTOM_FILTERS.items():
+            self.schedule_task(self._add_custom_filters, args=[filter_name, tag_names])
+        # self.schedule_task(self._create_team_csv)
         self.schedule_task(self._create_team_excel)
         self.schedule_task(self._create_survey)
 
     def _add_custom_filters(self, filter_name, tag_names):
         response_1 = self.client.get('manage_filters/')
-        soup = BeautifulSoup(response_1.content, 'html.parser')
-        csrfmiddlewaretoken = soup.form.input['value']
-        data = {
-            "csrfmiddlewaretoken": csrfmiddlewaretoken,
-            "user": 1371,
-            "category_name": filter_name,
-            "verb": "Create Filter",
-        }
+        data = self._extract_form_into_dict(response_1.content, {
+            'category_name': filter_name
+        })
         print(data)
         response_2 = self.client.post(response_1.url, data)  # noqa
+        print(response_2.content)
         manage_tag_url = response_2.url
 
         for tag_name in tag_names:
@@ -377,7 +374,7 @@ class CreateSurvey(TaskSet):
                                       files={'excel_people_list': ('members.xlsx', create_team_member_excel_file(num_team_members_to_create))})
         # print(response_2.content)
 
-    def _create_team(self):
+    def _create_team_csv(self):
         num_team_members_to_create = random.choice([100, 200, 1500])
 
         # batch create them 200 at a time
