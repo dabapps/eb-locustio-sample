@@ -12,6 +12,7 @@ import flask
 # import xlwt
 import io
 from openpyxl import Workbook
+import time
 
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
@@ -179,6 +180,8 @@ def www_get_next_team_member():
 
 
 class CompleteSurvey(TaskSet):
+    min_wait = 30000
+    max_wait = 60000
 
     def on_start(self):
         print("CompleteSurvey: on_start")
@@ -249,6 +252,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
+    min_wait = 2000
+    max_wait = 5000
 
     def on_start(self):
         print("CreateSurvey: on_start")
@@ -463,12 +468,14 @@ class CreateSurvey(TaskSet):
         survey_id = [int(s) for s in response_1.url.split('/') if s.isdigit()][0]
 
         # do nothing for a while to give a chance for someone to fill it in
-        for _i in range(0, 30):
-            self.schedule_task(self._do_nothing)
+        self.schedule_task(self._wait_for_x_seconds, args=[150, ])
         # now look at the report a few times  TODO: some different views
         self.schedule_task(self._view_report, args=[survey_id, ])
+        self.schedule_task(self._wait_for_x_seconds, args=[75, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
+        self.schedule_task(self._wait_for_x_seconds, args=[30, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
+        self.schedule_task(self._wait_for_x_seconds, args=[15, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
 
     def _view_report(self, survey_id):
@@ -477,8 +484,14 @@ class CreateSurvey(TaskSet):
         self.client.get(view_report_url,
                         name=create_placeholdered_url_for_stats(view_report_url))
 
-    def _do_nothing(self):
-        print('_do_nothing')
+    def _wait_until_time(self, future_time):
+        print('_wait_until_time({})'.format(future_time))
+        if int(time.time()) < future_time:
+            self.schedule_task(self._wait_until_time, args=[future_time, ])
+
+    def _wait_for_x_seconds(self, seconds):
+        print('_wait_for_x_seconds({})'.format(seconds))
+        self._wait_until_time(int(time.time()) + seconds)
 
     @task
     def stop(self):
@@ -497,8 +510,8 @@ class WeThrive(TaskSet):
 class MyLocust(HttpLocust):
     host = os.getenv('TARGET_URL', "http://localhost")
     task_set = WeThrive
-    min_wait = 2000
-    max_wait = 5000
+#    min_wait = 2000
+#    max_wait = 5000
 
 
 # print(create_team_member_excel_file(20))
