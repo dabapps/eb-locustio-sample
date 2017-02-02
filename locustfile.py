@@ -111,8 +111,8 @@ def generate_random_team_member():
         generate_location(),
         generate_dept(),
         generate_langauge(),
-        "Custom 1",
-        "Custom 2",
+        # "Custom 1",
+        # "Custom 2",
     )
 
 
@@ -328,8 +328,8 @@ class CreateSurvey(TaskSet):
         response_2 = self.client.post('accounts/login/', data)  # noqa
         # print(response_2)
 
-        for filter_name, tag_names in CUSTOM_FILTERS.items():
-            self.schedule_task(self._add_custom_filters, args=[filter_name, tag_names])
+        # for filter_name, tag_names in CUSTOM_FILTERS.items():
+        #     self.schedule_task(self._add_custom_filters, args=[filter_name, tag_names])
         # self.schedule_task(self._create_team_csv)
         self.schedule_task(self._create_team_excel)
         self.schedule_task(self._create_survey)
