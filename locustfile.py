@@ -365,7 +365,6 @@ class CreateSurvey(TaskSet):
         }
         print(data)
         response_2 = self.client.post(response_1.url,
-                                      headers={'HTTP_REFERER': response_1.url},
                                       data=data,
                                       files={'excel_people_list': ('members.xlsx', create_team_member_excel_file(num_team_members_to_create))})
         print(response_2.content)
