@@ -26,6 +26,11 @@ CUSTOM_FILTERS = {
     'Filter6': ['Foo', 'Bar', 'Baz'],
 }
 
+TEAM_NAMES = ["Team 1", "Team 2", ]
+LOCATIONS = ["Brighton", "London", ]
+DEPTS = ["IT", "Ops", "PR", "Marketing", ]
+LANGUAGES = ["English", ]
+
 
 # MASTER_IP = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
 MASTER_IP = "127.0.0.1"
@@ -79,24 +84,20 @@ def generate_random_email_and_name():
     )
 
 
+def generate_team():
+    return random.choice(TEAM_NAMES)
+
+
 def generate_location():
-    return "Brighton"
+    return random.choice(LOCATIONS)
 
 
 def generate_dept():
-    return "Some Dept"
+    return random.choice(DEPTS)
 
 
-def generate_unit():
-    return "Unit One"
-
-
-def generate_gender():
-    return "Male"
-
-
-def generate_custom_filter():
-    return "Some Tag Value"
+def generate_langauge():
+    return random.choice(LANGUAGES)
 
 
 def generate_random_team_member():
@@ -104,19 +105,17 @@ def generate_random_team_member():
     return (
         email,
         name,
+        generate_team(),
         generate_location(),
         generate_dept(),
-        generate_unit(),
-        generate_gender(),
-        generate_custom_filter(),
-        generate_custom_filter(),
+        generate_langauge(),
     )
 
 
 def create_team_member_excel_file(num_team_members):
     book = Workbook()
     sheet1 = book.active
-    sheet1.append(("Email", "Name", "Team", "Location", "Department", "Language", "Custom1", "Custom2"))
+    sheet1.append(("Email", "Name", "Team", "Location", "Department", "Language"))
     for i in range(0, num_team_members):
         sheet1.append(generate_random_team_member())
     raw_xls = io.BytesIO()
