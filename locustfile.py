@@ -331,10 +331,11 @@ class CreateSurvey(TaskSet):
         response_2 = self.client.post('accounts/login/', data)  # noqa
         # print(response_2)
 
-        for filter_name, tag_names in CUSTOM_FILTERS.items():
-            self.schedule_task(self._add_custom_filters, filter_name, tag_names)
+        # for filter_name, tag_names in CUSTOM_FILTERS.items():
+        #     self.schedule_task(self._add_custom_filters, args=[filter_name, tag_names])
         # self.schedule_task(self._create_team)
         self.schedule_task(self._create_team_excel)
+        self.schedule_task(self._create_survey)
 
     def _add_custom_filters(self, filter_name, tag_names):
         response_1 = self.client.get('manage_filters/')
@@ -374,10 +375,8 @@ class CreateSurvey(TaskSet):
             "verb": "Upload",
         }
         print(data)
-        response_2 = self.client.post(response_1.url, data=data, files={'excel_people_list': create_team_member_excel_file(num_team_members_to_create)})
-        print(response_2)
-
-        self.schedule_task(self._create_survey)
+        # response_2 = self.client.post(response_1.url, data=data, files={'excel_people_list': create_team_member_excel_file(num_team_members_to_create)})
+        # print(response_2)
 
     def _create_team(self):
         num_team_members_to_create = random.choice([100, 200, 1500])
@@ -398,8 +397,6 @@ class CreateSurvey(TaskSet):
             response_2 = self.client.post('people/', data, name="/people/ ({} members)".format(batch_size))  # noqa
             # print(response_2.content)
             num_team_members_to_create -= batch_size
-
-        self.schedule_task(self._create_survey)
 
     def _create_survey(self):
         self.client.get("surveys/")
