@@ -120,6 +120,7 @@ def create_team_member_excel_file(num_team_members):
     for i in range(0, num_team_members):
         sheet1.append(generate_random_team_member())
     raw_xls = io.BytesIO()
+    print(book)
     book.save(raw_xls)
     return raw_xls.getvalue()
 
