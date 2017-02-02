@@ -252,8 +252,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
-    min_wait = 2000
-    max_wait = 5000
+    min_wait = 5000
+    max_wait = 30000
 
     def on_start(self):
         print("CreateSurvey: on_start")
