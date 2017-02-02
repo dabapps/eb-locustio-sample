@@ -137,6 +137,24 @@ def remove_current_index_rule_so_we_can_replace_it():
 remove_current_index_rule_so_we_can_replace_it()
 
 
+def extract_form_into_dict(content, override={}):
+    soup = BeautifulSoup(content, 'html.parser')
+    form = soup.form
+    if form:  # survey open?
+        data = {}
+        for input_tag in form.find_all('input'):
+            try:
+                tag_name = input_tag['name']
+                if tag_name in override:
+                    data[tag_name] = override[tag_name]
+                else:
+                    data[tag_name] = input_tag['value']
+            except KeyError:
+                pass
+        print(data)
+        return data
+
+
 def smtp_info():
     return "EMAIL_HOST={}\nEMAIL_HOST_PASSWORD={}\nEMAIL_HOST_USER={}\nEMAIL_PORT={}\nEMAIL_USE_TLS=False".format(
         flask.request.environ['HTTP_HOST'],
@@ -203,25 +221,8 @@ class CompleteSurvey(TaskSet):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
         self.schedule_task(self._get_first_page, args=[survey_url, ])
 
-    def _extract_form_into_dict(self, content, override={}):
-        soup = BeautifulSoup(content, 'html.parser')
-        form = soup.form
-        if form:  # survey open?
-            data = {}
-            for input_tag in form.find_all('input'):
-                try:
-                    tag_name = input_tag['name']
-                    if tag_name in override:
-                        data[tag_name] = override[tag_name]
-                    else:
-                        data[tag_name] = input_tag['value']
-                except KeyError:
-                    pass
-            print(data)
-            return data
-
     def _fill_in_survey_form(self, content):
-        data = self._extract_form_into_dict(content)
+        data = extract_form_into_dict(content)
         if data:
             for k, v in data.items():
                 if '-Q' in k:
@@ -318,7 +319,7 @@ class CreateSurvey(TaskSet):
 
     def _login(self, email, password):
         response_1 = self.client.get("accounts/login/")
-        data = self._extract_form_into_dict(response_1.content, {
+        data = extract_form_into_dict(response_1.content, {
             "username": email,
             "password": password,
         })
@@ -334,7 +335,7 @@ class CreateSurvey(TaskSet):
 
     def _add_custom_filters(self, filter_name, tag_names):
         response_1 = self.client.get('manage_filters/')
-        data = self._extract_form_into_dict(response_1.content, {
+        data = extract_form_into_dict(response_1.content, {
             'category_name': filter_name
         })
         print(data)
