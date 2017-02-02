@@ -339,12 +339,19 @@ class CreateSurvey(TaskSet):
             'category_name': filter_name
         })
         print(data)
-        response_2 = self.client.post(response_1.url, data)  # noqa
+        response_2 = self.client.post(response_1.url,
+                                      data,
+                                      name=create_placeholdered_url_for_stats(
+                                          response_1.url
+                                      ))
         print(response_2.content)
         manage_tag_url = response_2.url
 
         for tag_name in tag_names:
-            response_3 = self.client.get(manage_tag_url)
+            response_3 = self.client.get(manage_tag_url,
+                                         name=create_placeholdered_url_for_stats(
+                                             manage_tag_url
+                                         ))
             soup = BeautifulSoup(response_3.content, 'html.parser')
             csrfmiddlewaretoken = soup.form.input['value']
             data = {
@@ -353,7 +360,11 @@ class CreateSurvey(TaskSet):
                 "verb": "Add",
             }
             print(data)
-            response_4 = self.client.post(response_3.url, data)  # noqa
+            response_4 = self.client.post(response_3.url,
+                                          data,
+                                          name=create_placeholdered_url_for_stats(
+                                              response_3.url
+                                          ))
             manage_tag_url = response_4.url
 
     def _create_team_excel(self):
