@@ -9,10 +9,21 @@ import re
 import requests
 from datetime import datetime
 import flask
+import xlwt
+import io
 
 
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
+
+CUSTOM_FILTERS = {
+    'Filter1': ['Foo', 'Bar', 'Baz'],
+    'Filter2': ['Foo', 'Bar', 'Baz'],
+    'Filter3': ['Foo', 'Bar', 'Baz'],
+    'Filter4': ['Foo', 'Bar', 'Baz'],
+    'Filter5': ['Foo', 'Bar', 'Baz'],
+    'Filter6': ['Foo', 'Bar', 'Baz'],
+}
 
 
 # MASTER_IP = requests.get("http://169.254.169.254/latest/meta-data/public-hostname", timeout=10).content
@@ -65,6 +76,63 @@ def generate_random_email_and_name():
         ),
         "{} {}".format(first_name, second_name)
     )
+
+
+def generate_location():
+    return "Brighton"
+
+
+def generate_dept():
+    return "Some Dept"
+
+
+def generate_unit():
+    return "Unit One"
+
+
+def generate_gender():
+    return "Male"
+
+
+def generate_custom_filter():
+    return "Some Tag Value"
+
+
+def generate_random_team_member():
+    (email, name) = generate_random_email_and_name()
+    return (
+        email,
+        name,
+        generate_location(),
+        generate_dept(),
+        generate_unit(),
+        generate_gender(),
+        generate_custom_filter(),
+        generate_custom_filter(),
+    )
+
+
+def create_team_member_excel_file(num_team_members):
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet1 = book.add_sheet("Sheet 1")
+
+    col = 0
+    row = 0
+    for heading in ("Email", "Name", "Team", "Location", "Department", "Language", "Custom1", "Custom2"):
+        sheet1.write(row, col, heading)
+        col += 1
+    row += 1
+
+    for i in range(0, num_team_members):
+        col = 0
+        for column_data in generate_random_team_member():
+            sheet1.write(row, col, column_data)
+            col += 1
+        row += 1
+
+    raw_xls = io.BytesIO()
+    book.save(raw_xls)
+    return raw_xls.getvalue()
 
 
 def remove_current_index_rule_so_we_can_replace_it():
@@ -263,7 +331,53 @@ class CreateSurvey(TaskSet):
         response_2 = self.client.post('accounts/login/', data)  # noqa
         # print(response_2)
 
-        self.schedule_task(self._create_team)
+        for filter_name, tag_names in CUSTOM_FILTERS.items():
+            self.schedule_task(self._add_custom_filters, filter_name, tag_names)
+        # self.schedule_task(self._create_team)
+        self.schedule_task(self._create_team_excel)
+
+    def _add_custom_filters(self, filter_name, tag_names):
+        response_1 = self.client.get('manage_filters/')
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "user": 1371,
+            "category_name": filter_name,
+            "verb": "Create Filter",
+        }
+        print(data)
+        response_2 = self.client.post(response_1.url, data)  # noqa
+        manage_tag_url = response_2.url
+
+        for tag_name in tag_names:
+            response_3 = self.client.get(manage_tag_url)
+            soup = BeautifulSoup(response_3.content, 'html.parser')
+            csrfmiddlewaretoken = soup.form.input['value']
+            data = {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken,
+                "name": tag_name,
+                "verb": "Add",
+            }
+            print(data)
+            response_4 = self.client.post(response_3.url, data)  # noqa
+            manage_tag_url = response_4.url
+
+    def _create_team_excel(self):
+        num_team_members_to_create = random.choice([100, 200, 1500])
+
+        response_1 = self.client.get("people/import_people/")
+        soup = BeautifulSoup(response_1.content, 'html.parser')
+        csrfmiddlewaretoken = soup.form.input['value']
+        data = {
+            "csrfmiddlewaretoken": csrfmiddlewaretoken,
+            "verb": "Upload",
+        }
+        print(data)
+        response_2 = self.client.post(response_1.url, data=data, files={'excel_people_list': create_team_member_excel_file(num_team_members_to_create)})
+        print(response_2)
+
+        self.schedule_task(self._create_survey)
 
     def _create_team(self):
         num_team_members_to_create = random.choice([100, 200, 1500])
@@ -274,7 +388,7 @@ class CreateSurvey(TaskSet):
             response_1 = self.client.get("people/")
             soup = BeautifulSoup(response_1.content, 'html.parser')
             csrfmiddlewaretoken = soup.form.input['value']
-            team_members_email_addresses_csv = "\n".join(["{},{}".format(*generate_random_email_and_name()) for x in range(0, batch_size)])
+            team_members_email_addresses_csv = "\n".join([",".join(generate_random_team_member()) for x in range(0, batch_size)])
             data = {
                 "csrfmiddlewaretoken": csrfmiddlewaretoken,
                 "email_addresses": team_members_email_addresses_csv,
@@ -393,3 +507,6 @@ class MyLocust(HttpLocust):
     task_set = WeThrive
     min_wait = 2000
     max_wait = 5000
+
+
+# print(create_team_member_excel_file(20))
