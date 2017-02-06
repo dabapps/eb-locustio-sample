@@ -19,12 +19,12 @@ FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
 
 CUSTOM_FILTERS = {
-    'Filter1': ['Foo', 'Bar', 'Baz'],
-    'Filter2': ['Foo', 'Bar', 'Baz'],
-    'Filter3': ['Foo', 'Bar', 'Baz'],
-    'Filter4': ['Foo', 'Bar', 'Baz'],
-    'Filter5': ['Foo', 'Bar', 'Baz'],
-    'Filter6': ['Foo', 'Bar', 'Baz'],
+    'Filter1': ['Foo1', 'Bar1', 'Baz1'],
+    'Filter2': ['Foo2', 'Bar2', 'Baz2'],
+    # 'Filter3': ['Foo', 'Bar', 'Baz'],
+    # 'Filter4': ['Foo', 'Bar', 'Baz'],
+    # 'Filter5': ['Foo', 'Bar', 'Baz'],
+    # 'Filter6': ['Foo', 'Bar', 'Baz'],
 }
 
 TEAM_NAMES = ["Team 1", "Team 2", ]
@@ -111,8 +111,8 @@ def generate_random_team_member():
         generate_location(),
         generate_dept(),
         generate_langauge(),
-        # "Custom 1",
-        # "Custom 2",
+        random.choice(CUSTOM_FILTERS[0]),
+        random.choice(CUSTOM_FILTERS[1]),
     )
 
 
