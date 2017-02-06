@@ -108,7 +108,7 @@ def create_tmp_dirs():
 
 if __name__ == "__main__":
     logger.info("Starting SMTPD...")
-    delete_smtp_stale_temp_files()
     create_tmp_dirs()
+    delete_smtp_stale_temp_files()
     s = PutLastestEmailInFilesystem(("0.0.0.0", SMTPD_PORT), None)
     asyncore.loop()
