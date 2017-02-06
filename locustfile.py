@@ -201,8 +201,8 @@ def www_get_next_team_member():
 
 
 class CompleteSurvey(TaskSet):
-    min_wait = 3000
-    max_wait = 6000
+    min_wait = 30000
+    max_wait = 60000
 
     def on_start(self):
         print("CompleteSurvey: on_start")
@@ -260,8 +260,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
-    min_wait = 500
-    max_wait = 3000
+    min_wait = 5000
+    max_wait = 30000
 
     def on_start(self):
         print("CreateSurvey: on_start")
