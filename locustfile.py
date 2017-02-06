@@ -115,8 +115,8 @@ def generate_random_team_member():
         generate_location(),
         generate_dept(),
         generate_langauge(),
-        random.choice(CUSTOM_FILTERS[0]),
-        random.choice(CUSTOM_FILTERS[1]),
+        random.choice(CUSTOM_FILTERS['Filter1']),
+        random.choice(CUSTOM_FILTERS['Filter2']),
     )
 
 
