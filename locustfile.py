@@ -374,7 +374,7 @@ class CreateSurvey(TaskSet):
             manage_tag_url = response_4.url
 
     def _create_team_excel(self):
-        num_team_members_to_create = random.choice([100, 200, 1500])
+        num_team_members_to_create = random.choice([100, 200])
 
         response_1 = self.client.get("people/import_people/")
         soup = BeautifulSoup(response_1.content, 'html.parser')
