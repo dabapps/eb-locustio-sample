@@ -516,8 +516,14 @@ class WeThrive(TaskSet):
     }
 
 
+def fix_url(url):
+    if url[-1] != '/':
+        return url + '/'
+    return url
+
+
 class MyLocust(HttpLocust):
-    host = os.getenv('TARGET_URL', "http://localhost")
+    host = fix_url(os.getenv('TARGET_URL', "http://localhost"))
     task_set = WeThrive
 #    min_wait = 2000
 #    max_wait = 5000
