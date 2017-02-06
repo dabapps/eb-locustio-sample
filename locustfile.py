@@ -15,6 +15,10 @@ from openpyxl import Workbook
 import time
 
 
+# 1 = proper time, 0.1 = 10 times faster
+TIME_SCALE = float(os.getenv("TIME_SCALE", "1"))
+
+
 FIRST_NAMES = ("Han", "Leia", "Chewy", "Luke", "Boba", "Ben")
 SECOND_NAMES = ("Solo", "Skywalker", "Fett", "Hutt")
 
@@ -201,8 +205,8 @@ def www_get_next_team_member():
 
 
 class CompleteSurvey(TaskSet):
-    min_wait = 30000
-    max_wait = 60000
+    min_wait = 30000 * TIME_SCALE
+    max_wait = 60000 * TIME_SCALE
 
     def on_start(self):
         print("CompleteSurvey: on_start")
@@ -260,8 +264,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
-    min_wait = 5000
-    max_wait = 30000
+    min_wait = 5000 * TIME_SCALE
+    max_wait = 30000 * TIME_SCALE
 
     def on_start(self):
         print("CreateSurvey: on_start")
