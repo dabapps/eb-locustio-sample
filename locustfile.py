@@ -111,19 +111,20 @@ def generate_random_team_member():
         generate_location(),
         generate_dept(),
         generate_langauge(),
-        "Custom 1",
-        "Custom 2",
+        # "Custom 1",
+        # "Custom 2",
     )
 
 
 def create_team_member_excel_file(num_team_members):
-    book = Workbook()
-    sheet1 = book.active
-    sheet1.append(("Email", "Name", "Team", "Location", "Department", "Language"))
+    book = Workbook(write_only=True)
+    ws = book.create_sheet()
+    headings = ("Email", "Name", "Team", "Location", "Department", "Language")
+    ws.append(headings)
     for i in range(0, num_team_members):
-        sheet1.append(generate_random_team_member())
+        team_member = generate_random_team_member()
+        ws.append(team_member)
     raw_xls = io.BytesIO()
-    print(book)
     book.save(raw_xls)
     return raw_xls.getvalue()
 
@@ -200,8 +201,8 @@ def www_get_next_team_member():
 
 
 class CompleteSurvey(TaskSet):
-    min_wait = 30000
-    max_wait = 60000
+    min_wait = 3000
+    max_wait = 6000
 
     def on_start(self):
         print("CompleteSurvey: on_start")
@@ -259,8 +260,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
-    min_wait = 5000
-    max_wait = 30000
+    min_wait = 500
+    max_wait = 3000
 
     def on_start(self):
         print("CreateSurvey: on_start")
@@ -530,3 +531,5 @@ class MyLocust(HttpLocust):
 
 
 # print(create_team_member_excel_file(1500))
+with open("team_members.xlsx", "wb") as fh:
+    fh.write(create_team_member_excel_file(1500))
