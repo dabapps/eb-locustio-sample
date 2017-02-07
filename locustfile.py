@@ -507,17 +507,17 @@ class CreateSurvey(TaskSet):
         self.interrupt()
 
 
-class WeThrive(TaskSet):
-    tasks = {
-        CreateSurvey: 1,
-        CompleteSurvey: 10,
-    }
-
-
 def fix_url(url):
     if url[-1] != '/':
         return url + '/'
     return url
+
+
+class WeThrive(TaskSet):
+    tasks = {
+        CreateSurvey: 1,
+        CompleteSurvey: 100,
+    }
 
 
 class MyLocust(HttpLocust):
