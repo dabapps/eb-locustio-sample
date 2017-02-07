@@ -220,8 +220,8 @@ class CompleteSurvey(TaskSet):
             survey_url = message
             self.schedule_task(self._fill_in_survey, args=[survey_url, ])
         else:
-            # if retry_count < 5:    # Obvs not enough surveys, so potentially become a survey maker.
-            self.schedule_task(self._fetch_team_member_details_from_master, args=[retry_count + 1, ])
+            if retry_count < 5:    # Obvs not enough surveys, so potentially become a survey maker.
+                self.schedule_task(self._fetch_team_member_details_from_master, args=[retry_count + 1, ])
 
     def _fill_in_survey(self, survey_url):
         print("CompleteSurvey: _fill_in_survey - {}".format(survey_url))
@@ -482,14 +482,11 @@ class CreateSurvey(TaskSet):
         survey_id = [int(s) for s in response_1.url.split('/') if s.isdigit()][0]
 
         # do nothing for a while to give a chance for someone to fill it in
-        self.schedule_task(self._wait_for_x_seconds, args=[150, ])
+        self.schedule_task(self._wait_for_x_seconds, args=[60 * 20, ])
         # now look at the report a few times  TODO: some different views
         self.schedule_task(self._view_report, args=[survey_id, ])
-        self.schedule_task(self._wait_for_x_seconds, args=[75, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
-        self.schedule_task(self._wait_for_x_seconds, args=[30, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
-        self.schedule_task(self._wait_for_x_seconds, args=[15, ])
         self.schedule_task(self._view_report, args=[survey_id, ])
 
     def _view_report(self, survey_id):
