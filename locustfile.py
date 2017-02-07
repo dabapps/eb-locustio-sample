@@ -530,5 +530,5 @@ class MyLocust(HttpLocust):
 
 
 # print(create_team_member_excel_file(1500))
-with open("team_members.xlsx", "wb") as fh:
-    fh.write(create_team_member_excel_file(1500))
+# with open("team_members.xlsx", "wb") as fh:
+#    fh.write(create_team_member_excel_file(1500))
