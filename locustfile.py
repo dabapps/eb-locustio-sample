@@ -205,6 +205,8 @@ def www_get_next_team_member():
 
 
 class CompleteSurvey(TaskSet):
+    min_wait = 30000 * TIME_SCALE
+    max_wait = 120000 * TIME_SCALE
 
     def on_start(self):
         print("CompleteSurvey: on_start")
@@ -262,6 +264,8 @@ class CompleteSurvey(TaskSet):
 
 
 class CreateSurvey(TaskSet):
+    min_wait = 15000 * TIME_SCALE
+    max_wait = 45000 * TIME_SCALE
 
     def on_start(self):
         print("CreateSurvey: on_start")
@@ -523,8 +527,6 @@ class WeThrive(TaskSet):
 class MyLocust(HttpLocust):
     host = fix_url(os.getenv('TARGET_URL', "http://localhost"))
     task_set = WeThrive
-    min_wait = 15000 * TIME_SCALE
-    max_wait = 45000 * TIME_SCALE
 
 
 # print(create_team_member_excel_file(1500))
